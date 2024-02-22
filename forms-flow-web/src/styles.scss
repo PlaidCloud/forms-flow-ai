@@ -3,6 +3,19 @@
 
 @import "./variables.scss";
 
+$blue: #002F6C;
+$lightblue: #002F6C;
+
+.btn-outline-primary:not(:disabled) {
+  border-color: #002F6C;
+  color: #002F6C;
+
+  &:hover {
+    color: #ffffff;
+    background-color: $primary;
+  }
+}
+
 .nav-dropdown {
   .dropdown-menu {
     width: 15rem;
@@ -152,6 +165,37 @@
 
 .content {
   background-color: $gray-100;
+}
+
+
+.topheading-border-bottom {
+  z-index: 2000;
+  border-bottom: 2px solid #002F6C !important;
+  padding: 0 0.5rem !important;
+  box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.2),
+    0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
+}
+
+
+.sort-span {
+  cursor: pointer;
+  border: 1px solid #002F6C;
+  border-radius: 0.25rem;
+  padding: 4px;
+  padding-left: 6px;
+  padding-top: 0px;
+  border-radius: 6px;
+  width: 35px;
+}
+
+
+.sort-span:hover {
+
+  background-color: #002F6C;
+
+  .fa-lg-hover {
+    color: white;
+  }
 }
 
 .custom-app-name {
