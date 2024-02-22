@@ -9,7 +9,7 @@ const Footer = React.memo(() => {
     <div className="pl-md-3 pb-3">
       <hr />
       <div className="d-flex justify-content-end pb-2">
-        <div className="font-weight-bold">
+        <div className="footer-text">
           <Translation>{(t) => t("Powered by ")}</Translation>{" "}
           <a className="text-link" href="https://formsflow.ai/">
             formsflow.ai
