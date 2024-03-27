@@ -61,11 +61,11 @@ After the above setup is done, the individial forms-flow projects should be read
 
 ### How To Build `forms-flow-web` Image
 
-To build the image:
+To build the output files and subsequently build/push image:
 - Run `build-web.sh` from `forms-flow-ai` root directory, specifying the tag you've rebased onto:
   - `./build-web.sh v5.3.1`
 
-To upload build files to CDN:
+To upload build files from `build-web.sh` to CDN:
 - Log into google cloud console
 - Navigate to [plaidcloud-cdn](https://console.cloud.google.com/storage/browser/plaidcloud-cdn/formsflow?project=plaidcloud-io) formsflow directory
 - Create a new folder named after the version tag
