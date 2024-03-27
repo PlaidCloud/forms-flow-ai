@@ -32,3 +32,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+## PlaidCloud
+
+These are the docs for how to build various components of forms flow for use in PlaidCloud ecosystem.
+
+Things you'll need:
+
+- `docker` (authenticated with our Google Artifact Registry)
+- `gcloud` if uploading build files from CLI
+- [forms-flow-ai-micro-front-ends](https://github.com/PlaidCLoud/forms-flow-ai-micro-front-ends) cloned locally, side-by-side with this repo:
+  - `projects/`
+    - `forms-flow-ai/`
+    - `forms-flow-ai-micro-front-ends/`
+
+Once the above is done, follow these steps to prepare a specific formsflow version for build:
+
+- If not done already, add upstream repo as a remote:
+  - `cd forms-flow-ai-micro-front-ends && git remote add upstream git@github.com:AOT-Technologies/forms-flow-ai-micro-front-ends.git`
+  - `cd forms-flow-ai && git remote add upstream git@github.com:AOT-Technologies/forms-flow-ai.git`
+- Pull latest from `upstream` in both projects to fetch any new tagged versions:
+  - `git pull upstream`
+- If not done already, check out `plaidcloud` branch in both projects:
+  - `git checkout plaidcloud`
+- For both projects, rebase `plaidcloud` onto the tag you wish to build, and resolve conflicts (if any):
+  - `git rebase v5.3.1`
+
+After the above setup is done, the individial forms-flow projects should be ready for building.
+
+### How To Build `forms-flow-web` Image
+
+To build the image:
+- Run `build-web.sh` from `forms-flow-ai` root directory, specifying the tag you've rebased onto:
+  - `./build-web.sh v5.3.1`
+
+To upload build files to CDN:
+- Log into google cloud console
+- Navigate to [plaidcloud-cdn](https://console.cloud.google.com/storage/browser/plaidcloud-cdn/formsflow?project=plaidcloud-io) formsflow directory
+- Create a new folder named after the version tag
+- Upload everything in the `output/$VERSION_TAG` dir
+
+Alternatively, use `gcloud` CLI:
+- `VERSION_TAG=v5.3.1`
+- `gcloud storage cp --recursive output/$VERSION_TAG gs://plaidcloud-cdn/formsflow/$VERSION_TAG/`
