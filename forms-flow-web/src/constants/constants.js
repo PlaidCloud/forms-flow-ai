@@ -70,7 +70,7 @@ export const KEYCLOAK_REALM =
 export const KEYCLOAK_URL =
   (window._env_ && window._env_.REACT_APP_KEYCLOAK_URL) ||
   process.env.REACT_APP_KEYCLOAK_URL;
-export const KEYCLOAK_AUTH_URL = `${KEYCLOAK_URL}/auth`;
+export const KEYCLOAK_AUTH_URL = `${KEYCLOAK_URL}`;
 
 export const CLIENT = "formsflow-client";
 export const STAFF_DESIGNER = "formsflow-designer";
