@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# TODO:
-#   - Add ability to upload build files to the public internet (plaidcloud-cdn?)
-#   - Add ability to build and push root config image to Artifact Registry
-#   - Add comments describing what this thing does
-#   - Refactor? Error checking/handling?
-
 function usage () {
     echo "Usage: ./build-web.sh <version-tag>"
     echo ""
