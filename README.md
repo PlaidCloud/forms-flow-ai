@@ -40,7 +40,7 @@ Things you'll need:
 
 - `docker` (authenticated with our Google Artifact Registry)
 - `gcloud` if uploading build files from CLI
-- [forms-flow-ai-micro-front-ends](https://github.com/PlaidCLoud/forms-flow-ai-micro-front-ends) cloned locally, side-by-side with this repo:
+- [forms-flow-ai-micro-front-ends](https://github.com/PlaidCloud/forms-flow-ai-micro-front-ends) cloned locally, side-by-side with this repo:
   - `projects/`
     - `forms-flow-ai/`
     - `forms-flow-ai-micro-front-ends/`
