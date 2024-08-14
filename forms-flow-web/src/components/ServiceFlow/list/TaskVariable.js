@@ -1,53 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { Row, Col } from "react-bootstrap";
-const TaskVariable = ({ expandedTasks, setExpandedTasks,taskId, variables }) => {
+const TaskVariable = ({ variables }) => {
+  const [showMore, setShowMore] = useState(false);
   let variableCount = 0;
   const taskvariable = useSelector(
     (state) => state.bpmTasks.selectedFilter?.variables || []
   );
-  const allTaskVariablesExpanded = useSelector((state) => state.bpmTasks.allTaskVariablesExpand);
-  const taskList = useSelector((state) => state.bpmTasks.tasksList);
 
-  const vissibleAttributes = useSelector(
-    (state) => state.bpmTasks.vissibleAttributes
-  );
-
-  useEffect(() => {
-    // Initialize expandedTasks based on the initial value of allTaskVariablesExpanded
-    const updatedExpandedTasks = {};
-    if (allTaskVariablesExpanded) {
-      taskList.forEach((task) => {
-        updatedExpandedTasks[task.id] = allTaskVariablesExpanded;
-      });
-    }
-    setExpandedTasks(updatedExpandedTasks);
-  }, [allTaskVariablesExpanded, taskList]);
-
-  //Toggle the expanded state of TaskVariables in single task
-  const handleToggleTaskVariable = (taskId) => {
-    setExpandedTasks((prevExpandedTasks) => ({
-      ...prevExpandedTasks,
-      [taskId]: !prevExpandedTasks[taskId],
-    }));
-  };
-
-  const filterTaskVariables = (taskvariable)=>{
-    if(!vissibleAttributes.taskVisibleAttributes.applicationId){
-      return taskvariable = taskvariable.filter((item) => item.label !== 'Application Id');
-    }
-    return taskvariable;
-  };
-
-  const filterVariables = (variables)=>{
-    if(!vissibleAttributes.taskVisibleAttributes.applicationId){
-      return variables = variables.filter((item) => item.label !== 'applicationId');
-    }
-    return variables;
-  };
-
-
-  const rowReturn = (taskItem, data, index) => {  
+  const rowReturn = (taskItem, data, index) => {
     return (
       <Col xs={12} lg={6} key={index} className="mb-2">
         <div
@@ -56,11 +17,11 @@ const TaskVariable = ({ expandedTasks, setExpandedTasks,taskId, variables }) => 
           data-placement="top"
           title={taskItem.label}
         >
-          <span className="fw-bold mb-0 ">   
-            {taskItem.label === "Application Id" ? "Submission Id" : taskItem.label}
+          <span style={{ margin: "0px", fontWeight: "bold" }}>
+            {taskItem.label}
           </span>
         </div>
-        <div className="text-truncate ">
+        <div className="text-truncate " style={{ fontSize: "14px" }}>
           <span
             data-toggle="tooltip"
             data-placement="top"
@@ -77,15 +38,15 @@ const TaskVariable = ({ expandedTasks, setExpandedTasks,taskId, variables }) => 
     <>
       <Row className=" mt-3 justify-content-between">
         {taskvariable &&
-          filterTaskVariables(taskvariable)?.map((taskItem, index) => {
-            const data = filterVariables(variables)?.find(
+          taskvariable.map((taskItem, index) => {
+            const data = variables.find(
               (variableItem) => variableItem.name === taskItem.name
             );
             if (data && data.value !== (undefined || null)) {
               if (variableCount < 2) {
                 variableCount++;
                 return rowReturn(taskItem, data, index);
-              } else if (expandedTasks[taskId]) {
+              } else if (showMore) {
                 return rowReturn(taskItem, data, index);
               } else {
                 return false;
@@ -97,16 +58,16 @@ const TaskVariable = ({ expandedTasks, setExpandedTasks,taskId, variables }) => 
       </Row>
       {taskvariable.length > 2 && variables.length > 2 && (
         <Row
-          className="justify-content-center text-center"
+          className="justify-content-center"
           onClick={(e) => {
             e.stopPropagation();
-            handleToggleTaskVariable(taskId);
+            setShowMore(!showMore);
           }}
         >
           <i
             className="fa fa-angle-down"
             style={{
-              transform: `${expandedTasks[taskId] ? "rotate(180deg)" : "rotate(0deg)"}`,
+              transform: `${showMore ? "rotate(180deg)" : "rotate(0deg)"}`,
             }}
             aria-hidden="true"
           />

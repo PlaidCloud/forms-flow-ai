@@ -1,5 +1,4 @@
 """This manages draft Response Schema."""
-
 from marshmallow import EXCLUDE, Schema, fields
 
 

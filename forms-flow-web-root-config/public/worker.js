@@ -1,51 +1,54 @@
 const CACHE_NAME = "FORMS-FLOW-AI-WEB";
+// Set this to true for production
 const doCache = true;
 
 const urlsToCache = [
+  "/",
+  "/form",
+  "/task",
+  "/application",
   "/manifest.json",
   "/favicon.ico",
+  "/config/kc/keycloak.json",
+  "/spinner.gif",
+  "/logo.png",
+  "/simple-logo.png",
 ];
-
 // Install a service worker
 self.addEventListener("install", (event) => {
   if (doCache) {
+    // Perform install steps
+    // console.log('Attempting to install service worker and cache static assets');
     event.waitUntil(
       caches.open(CACHE_NAME).then((cache) => {
-        return cache.addAll(
-          urlsToCache.map((url) => {
-            return new Request(url, { mode: "no-cors" });
-          })
-        );
+        // console.log("Opened cache");
+        cache
+          .addAll(
+            urlsToCache.map((urlsToCache) => {
+              return new Request(urlsToCache, { mode: "no-cors" });
+            })
+          )
+          .then(() =>
+            console.log("All resources have been fetched and cached.")
+          );
       })
     );
   }
 });
 
-// Fetch event
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Clone the response for caching
-        const responseClone = response.clone();
-
-        // Cache the fetched response
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseClone);
-        });
-
+    caches.match(event.request).then((response) => {
+      // Cache hit - return response
+      if (response) {
         return response;
-      })
-      .catch(() => {
-        // If fetch fails, try to respond with the cached version
-        return caches.match(event.request).then((cachedResponse) => {
-          return cachedResponse || new Response(null, { status: 404 });
-        });
-      })
+      }
+      return fetch(event.request);
+    })
   );
 });
 
-// Activate event
+// Update a service worker
 self.addEventListener("activate", (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -61,10 +64,9 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Message event
 self.addEventListener("message", (event) => {
+  //console.log("message",event.data.action);
   if (event.data.action === "skipWaiting") {
     self.skipWaiting();
   }
 });
-

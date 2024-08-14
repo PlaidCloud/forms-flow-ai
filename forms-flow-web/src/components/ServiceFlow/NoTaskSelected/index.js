@@ -6,12 +6,12 @@ function NoTaskSelectedMessage() {
   return (
     <div className="d-flex flex-column h-100 align-items-center justify-content-center">
       <NoFilterImage
-      className="w-100 no-filter-img"
+        style={{ width: "100%", height: "150PX" }}
         alt="Select a task from the List"
       />
-      <label className="text-center select-task-text py-3">
+      <h3 className="text-center">
         <Translation>{(t) => t("Select a task from the List.")}</Translation>
-      </label>
+      </h3>
       <p className="text-center">
         <Translation>
           {(t) =>

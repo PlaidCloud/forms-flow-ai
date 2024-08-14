@@ -67,13 +67,13 @@ const SelectFormForDownload = React.memo(({ form, type }) => {
 
   if (type === "all") {
     return (
-      <div className="d-flex flex-row">
+      <div className="select_download">
        
       <Form.Check
+        className="form_check" 
       >
         <Form.Check.Input
-          className="form-check-input"
-          data-testid="download-all-form-checkbox"
+          className="select_input"
           aria-label="Check"
           onChange={() => addAllFormCheckList(!isAllFormChecked)}
           checked={isAllFormChecked}
@@ -87,9 +87,8 @@ const SelectFormForDownload = React.memo(({ form, type }) => {
   return (
     <Form.Check>
       <Form.Check.Input
-        className="form-check-input"        
+        style={{ width: "15px", height: "15px" }}
         aria-label="option"
-        data-testid={`download-form-checkbox-${form._id}`}
         checked={isFormChecked}
         onChange={() => updateFormCheckList(!isFormChecked)}
         title={t("Select for download")}

@@ -9,6 +9,7 @@ import { setApplicationDetailLoader } from "../../../../../actions/applicationAc
 import { getUserRolePermission } from "../../../../../helper/user";
 import {
   BASE_ROUTE,
+  CLIENT,
   CUSTOM_SUBMISSION_URL,
   CUSTOM_SUBMISSION_ENABLE,
   STAFF_REVIEWER,
@@ -65,7 +66,7 @@ const Item = React.memo(() => {
     if (getUserRolePermission(userRoles, STAFF_REVIEWER)) {
       setEditAllowed(true);
     } else if (applicationStatus) {
-      if (userRoles.includes('create_submissions')) {
+      if (getUserRolePermission(userRoles, CLIENT)) {
         setEditAllowed(CLIENT_EDIT_STATUS.includes(applicationStatus)
           || applicationDetail.isResubmit ? true : false);
         setShowSubmissionLoading(false);

@@ -1,16 +1,12 @@
 """Resource to call Keycloak Service API calls and filter responses."""
-
 from http import HTTPStatus
 
 from flask import request
 from flask_restx import Namespace, Resource, fields
 from formsflow_api_utils.utils import (
-    ADMIN,
-    CREATE_DESIGNS,
-    CREATE_FILTERS,
-    MANAGE_ALL_FILTERS,
-    PERMISSION_DETAILS,
-    VIEW_FILTERS,
+    ADMIN_GROUP,
+    DESIGNER_GROUP,
+    REVIEWER_GROUP,
     auth,
     cors_preflight,
     profiletime,
@@ -40,15 +36,7 @@ class KeycloakRolesResource(Resource):
     """Resource to manage keycloak list and create roles/groups."""
 
     @staticmethod
-    @auth.has_one_of_roles(
-        [
-            ADMIN,
-            CREATE_DESIGNS,
-            MANAGE_ALL_FILTERS,
-            CREATE_FILTERS,
-            VIEW_FILTERS,
-        ]
-    )
+    @auth.has_one_of_roles([ADMIN_GROUP, DESIGNER_GROUP, REVIEWER_GROUP])
     @profiletime
     @API.doc(
         responses={
@@ -72,7 +60,7 @@ class KeycloakRolesResource(Resource):
         return response, HTTPStatus.OK
 
     @staticmethod
-    @auth.has_one_of_roles([ADMIN])
+    @auth.has_one_of_roles([ADMIN_GROUP])
     @profiletime
     @API.doc(
         responses={
@@ -99,7 +87,7 @@ class KeycloakRolesResourceById(Resource):
     """Resource to manage keycloak roles/groups by id."""
 
     @staticmethod
-    @auth.has_one_of_roles([ADMIN])
+    @auth.has_one_of_roles([ADMIN_GROUP])
     @profiletime
     @API.doc(
         responses={
@@ -120,7 +108,7 @@ class KeycloakRolesResourceById(Resource):
         return response, HTTPStatus.OK
 
     @staticmethod
-    @auth.has_one_of_roles([ADMIN])
+    @auth.has_one_of_roles([ADMIN_GROUP])
     @profiletime
     @API.doc(
         responses={
@@ -139,7 +127,7 @@ class KeycloakRolesResourceById(Resource):
         return {"message": "Deleted successfully."}, HTTPStatus.OK
 
     @staticmethod
-    @auth.has_one_of_roles([ADMIN])
+    @auth.has_one_of_roles([ADMIN_GROUP])
     @profiletime
     @API.doc(
         responses={
@@ -158,23 +146,3 @@ class KeycloakRolesResourceById(Resource):
         request_data = roles_schema.load(request.get_json())
         response = KeycloakFactory.get_instance().update_group(role_id, request_data)
         return {"message": response}, HTTPStatus.OK
-
-
-@cors_preflight("GET, OPTIONS")
-@API.route("/permissions", methods=["GET", "OPTIONS"])
-class Permissions(Resource):
-    """Resource to list."""
-
-    @staticmethod
-    @auth.has_one_of_roles([ADMIN])
-    @profiletime
-    @API.doc(
-        responses={
-            200: "OK:- Successful request.",
-            400: "BAD_REQUEST:- Invalid request.",
-            401: "UNAUTHORIZED:- Authorization header not provided or an invalid token passed.",
-        },
-    )
-    def get():
-        """Return permission list."""
-        return PERMISSION_DETAILS

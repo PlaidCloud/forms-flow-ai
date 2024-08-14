@@ -19,10 +19,9 @@ const DraftOperations = ({ row }) => {
   return (
     <>
       <div>
-        <span className="ms-2">
+        <span style={{ marginLeft: "2rem" }}>
           <span>
             <button
-              data-testid={`draft-delete-button-${row.id}`}
               className="btn btn-link text-danger mt-2"
               onClick={() => deleteDraft()}
             >

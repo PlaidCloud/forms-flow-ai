@@ -1,6 +1,4 @@
 """Test suite for application API public endpoint."""
-
-from formsflow_api_utils.utils import CREATE_DESIGNS
 from pytest import mark
 
 from formsflow_api.constants import BusinessErrorCode
@@ -19,7 +17,7 @@ class TestApplicationAnonymousResourcesByIds:
 
     def test_application_valid_post(self, app, client, session, jwt):
         """Assert that public API /application when passed with valid payload returns 201 status code."""
-        token = get_token(jwt, role=CREATE_DESIGNS)
+        token = get_token(jwt)
         headers = {
             "Authorization": f"Bearer {token}",
             "content-type": "application/json",
@@ -50,7 +48,7 @@ class TestApplicationAnonymousResourcesByIds:
 
     def test_application_unauthorized_post(self, app, client, session, jwt):
         """Assert that public API /application when passed with valid payload returns 403 status code when the form is not anonymos."""
-        token = get_token(jwt, role=CREATE_DESIGNS)
+        token = get_token(jwt)
         headers = {
             "Authorization": f"Bearer {token}",
             "content-type": "application/json",
@@ -72,7 +70,7 @@ class TestApplicationAnonymousResourcesByIds:
 
     def test_application_inactive_post(self, app, client, session, jwt):
         """Assert that public API /application when passed with valid payload returns 403 status code when the form is anonymous but Inactive."""
-        token = get_token(jwt, role=CREATE_DESIGNS)
+        token = get_token(jwt)
         headers = {
             "Authorization": f"Bearer {token}",
             "content-type": "application/json",
@@ -98,7 +96,7 @@ class TestAnonymousFormById:
 
     def test_anonymous_active_form_by_form_id(self, client, session, jwt):
         """Assert that public API when passed with valid payload returns 200 status code."""
-        token = get_token(jwt, role=CREATE_DESIGNS)
+        token = get_token(jwt)
         headers = {
             "Authorization": f"Bearer {token}",
             "content-type": "application/json",

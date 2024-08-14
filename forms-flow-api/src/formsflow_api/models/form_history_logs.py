@@ -1,5 +1,4 @@
 """This manages Form history information."""
-
 from typing import List
 
 from sqlalchemy import JSON, and_, desc, text

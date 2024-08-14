@@ -4,13 +4,12 @@ import { StorageService, RequestService } from "@formsflow/service";
 import API from "../endpoints";
 import {getFormUrlWithFormIdSubmissionId} from "./formatterService";
 
-export const getProcessReq = (form, submissionId, origin, submissionData ) => {
+export const getProcessReq = (form, submissionId, origin ) => {
   const requestFormat = {
     formId: form._id,
     submissionId: submissionId,
     formUrl: getFormUrlWithFormIdSubmissionId(form._id, submissionId),
-    webFormUrl: `${origin}form/${form._id}/submission/${submissionId}`,
-    data: submissionData
+    webFormUrl: `${origin}form/${form._id}/submission/${submissionId}`
   };
   return requestFormat;
 };

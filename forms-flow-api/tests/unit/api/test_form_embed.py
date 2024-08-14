@@ -1,18 +1,17 @@
 """Test suit for embed APIs."""
-from formsflow_api_utils.utils import CREATE_DESIGNS
 
 from tests.utilities.base_test import (
     get_embed_application_create_payload,
     get_embed_token,
-    get_form_payload,
     get_form_request_payload,
     get_token,
+    get_form_payload,
 )
 
 
-def test_get_external_form_valid_request(app, client, session, jwt, mock_redis_client):
+def test_get_external_form_valid_request(app, client, session, jwt):
     """Testing the external get form by pathname."""
-    token = get_token(jwt, role=CREATE_DESIGNS)
+    token = get_token(jwt)
     assert token is not None
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
     response = client.post(
@@ -38,9 +37,9 @@ def test_get_external_form_invalid_request(app, client, session, jwt):
     assert rv.status_code == 401
 
 
-def test_get_internal_form_valid_request(app, client, session, jwt, mock_redis_client):
+def test_get_internal_form_valid_request(app, client, session, jwt):
     """Testing the internal get form by pathname."""
-    token = get_token(jwt, role=CREATE_DESIGNS)
+    token = get_token(jwt)
     assert token is not None
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
     response = client.post(
@@ -62,9 +61,9 @@ def test_get_internal_form_invalid_request(app, client, session, jwt):
     assert rv.status_code == 401
 
 
-def test_form_embed_external_submission(app, client, session, jwt, mock_redis_client):
+def test_form_embed_external_submission(app, client, session, jwt):
     """Testing form process mapper update endpoint."""
-    token = get_token(jwt, role=CREATE_DESIGNS)
+    token = get_token(jwt)
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
     response = client.post(
         "/form",
@@ -83,9 +82,9 @@ def test_form_embed_external_submission(app, client, session, jwt, mock_redis_cl
     assert res.status_code == 201
 
 
-def test_form_embed_internal_submission(app, client, session, jwt, mock_redis_client):
+def test_form_embed_internal_submission(app, client, session, jwt):
     """Testing form process mapper update endpoint."""
-    token = get_token(jwt, role=CREATE_DESIGNS)
+    token = get_token(jwt)
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
     response = client.post(
         "/form",

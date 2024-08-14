@@ -1,5 +1,3 @@
-@import "../../variables.scss";
-
 .grid-forms {
     .col-md-4 {
         flex: 0 0 50% !important;
@@ -14,18 +12,17 @@
 }
 
 .published-forms-label{
-    color: $success;
-    // #52C41A;
-    background: $success-200 0% 0% no-repeat padding-box;
-    border: 1px solid $success;
+    color: #52C41A;
+    background: #EAFBE7 0% 0% no-repeat padding-box;
+    border: 1px solid #52C41A;
     border-radius: 7px;
 }
 
 .unpublished-forms-label{
-    background: $primary-100 0% 0% no-repeat padding-box;
+    background: #E6F7FF 0% 0% no-repeat padding-box;
     border-radius: 7px;
-    border: 1px solid $primary-400;
-    color: $primary-400;
+    border: 1px solid #91D5FF;
+    color: #1890FF;
 }
 .custom-grid {
     .col {
@@ -35,7 +32,17 @@
         height: auto;
         word-break: break-all;
     }
-    
+
+    .list-group-item {
+        border-top: 1px solid #ced4da !important;
+        padding: 0rem 1.25rem !important;
+    }
+
+    .list-group-item:first-child {
+        border-bottom: 1.5px solid #ced4da !important;
+        background-color: #F2F2F2 !important;
+    }
+
     h5,
     .h5 {
         font-weight: 400 !important;
@@ -64,6 +71,10 @@
         text-decoration: none !important;
     }
 
+    .btn-right {
+        float: right;
+        margin-left: auto;
+    }
 
     .btn {
         margin-right: 0px;
@@ -93,10 +104,6 @@
     flex: 10%;
 }
 
-.list-margin{
-    margin-top: -10px;
-}
-
 .flex-item-right {
     justify-content: flex-end;
     display: flex;
@@ -109,43 +116,24 @@ flex-wrap: wrap;
     margin: 10px;
     height: 30px;white-space: nowrap;
 }
-
 .progress-bar {
-    background-color: $primary;
+    background-color: #ff0000ab;
 }
-
 .fileupload-fail {
-    color: $danger-100;
+    color: #f85757;
     float: right;
     font-weight: normal
 }
 
-
-.form-check-input{
-    width: 15px;
-    height: 15px;
+.progress-bar {
+    background-color: #ff0000ab;
 }
 
-.min-height-400{
-    min-height: 400px;
+.fileupload-fail {
+    color: #f85757;
+    float: right;
+    font-weight: normal
 }
-.fs-16{
-  font-size: 16px;  
-}
-.description-title{
-  max-width: 350px;  
-}
-.description-content{
-    max-width: 68vw;
-}
-.clientForm-table-col{
-    min-height: 300px;
-}
-.upload-progress{
-    height: 5px;
-    margin-top: 11px;
-}
-
 .public-label {
     margin-right: 12px;
 }
@@ -161,10 +149,10 @@ flex-wrap: wrap;
     }
 }
 .page-item .page-link {
-    color: $primary !important;
+    color: var(--color-primary)!important;
 }
 .page-item.active .page-link {
-    color: $white !important;
+    color: var(--color-white) !important;
 }
 
 /* Style the dots */
@@ -181,5 +169,4 @@ flex-wrap: wrap;
   }
 .form-description-p-tag > p{
     word-wrap: break-word;
-    max-width: 68vw;
 }

@@ -1,5 +1,4 @@
 """Unit test for APIs of Keycloak Group."""
-
 import pytest
 
 from tests.utilities.base_test import get_token, update_dashboard_payload

@@ -1,15 +1,9 @@
 """API endpoints for metrics resource."""
-
 from http import HTTPStatus
 
 from flask import request
 from flask_restx import Namespace, Resource, fields
-from formsflow_api_utils.utils import (
-    VIEW_DASHBOARDS,
-    auth,
-    cors_preflight,
-    profiletime,
-)
+from formsflow_api_utils.utils import auth, cors_preflight, profiletime
 
 from formsflow_api.schemas.aggregated_application import (
     ApplicationMetricsRequestSchema,
@@ -71,7 +65,7 @@ class AggregatedApplicationsResource(Resource):
     """Resource for managing aggregated applications."""
 
     @staticmethod
-    @auth.has_one_of_roles([VIEW_DASHBOARDS])
+    @auth.require
     @profiletime
     @API.doc(
         params={
@@ -146,7 +140,7 @@ class AggregatedApplicationStatusResource(Resource):
     """Resource for managing aggregated applications."""
 
     @staticmethod
-    @auth.has_one_of_roles([VIEW_DASHBOARDS])
+    @auth.require
     @profiletime
     @API.doc(
         params={

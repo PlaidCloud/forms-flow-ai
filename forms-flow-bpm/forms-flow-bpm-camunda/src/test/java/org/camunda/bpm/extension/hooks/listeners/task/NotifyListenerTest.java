@@ -1,5 +1,20 @@
 package org.camunda.bpm.extension.hooks.listeners.task;
 
+import static org.camunda.bpm.extension.commons.utils.VariableConstants.EMAIL_TO;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ProcessEngine;
@@ -13,7 +28,9 @@ import org.camunda.bpm.engine.identity.UserQuery;
 import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.extension.hooks.listeners.stubs.IdentityStub;
 import org.camunda.bpm.extension.hooks.listeners.stubs.UserStub;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -21,14 +38,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.lang.reflect.Field;
-import java.util.*;
-
-import static org.camunda.bpm.extension.commons.utils.VariableConstants.EMAIL_TO;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 /**
  * Notify Listener Test.
@@ -51,9 +60,6 @@ public class NotifyListenerTest {
 
 	@Mock
 	private Expression groupsOnly;
-
-	@Mock
-	private Expression emailAddress;
 
 	@Mock
 	private DelegateTask delegateTask;
@@ -99,8 +105,6 @@ public class NotifyListenerTest {
 				.thenReturn("[\"forms-flow-designer\",\"forms-flow-clerk\"]");
 		when(category.getValue(delegateExecution))
 				.thenReturn("test-category");
-		when(emailAddress.getValue(delegateExecution))
-				.thenReturn("[\"formsflowdesigner@aot-technologies.com\",\"formsflowclerk@aot-technologies.com\"]");
 		when(delegateTask.getId())
 				.thenReturn("taskId-1");
 		
@@ -137,7 +141,7 @@ public class NotifyListenerTest {
 		verify(runtimeService).startProcessInstanceByMessage(messageIdCaptor.capture(),
 				messageVariableCaptor.capture());
 		Map<String, Object> eMessageVariables = new HashMap<>();
-		eMessageVariables.put(EMAIL_TO, "formsflowdesigner@aot-technologies.com,formsflowclerk@aot-technologies.com,john.honai@aot-technologies.com,peter.scots@aot-technologies.com");
+		eMessageVariables.put(EMAIL_TO, "john.honai@aot-technologies.com,peter.scots@aot-technologies.com");
 		eMessageVariables.put("name", "Team");
 		eMessageVariables.put("category", "test-category");
 		eMessageVariables.put("taskid", "taskId-1");
@@ -159,8 +163,6 @@ public class NotifyListenerTest {
 				.thenReturn("[\"forms-flow-designer\",\"forms-flow-clerk\"]");
 		when(category.getValue(delegateExecution))
 				.thenReturn("test-category");
-		when(emailAddress.getValue(delegateExecution))
-				.thenReturn("[\"formsflowdesigner@aot-technologies.com\",\"formsflowclerk@aot-technologies.com\"]");
 		when(delegateTask.getId())
 				.thenReturn("taskId-1");
 		
@@ -200,7 +202,7 @@ public class NotifyListenerTest {
 		verify(runtimeService).startProcessInstanceByMessage(messageIdCaptor.capture(),
 				messageVariableCaptor.capture());
 		Map<String, Object> eMessageVariables = new HashMap<>();
-		eMessageVariables.put(EMAIL_TO, "formsflowdesigner@aot-technologies.com,formsflowclerk@aot-technologies.com,john.honai@aot-technologies.com,peter.scots@aot-technologies.com");
+		eMessageVariables.put(EMAIL_TO, "john.honai@aot-technologies.com,peter.scots@aot-technologies.com");
 		eMessageVariables.put("name", "Team");
 		eMessageVariables.put("category", "test-category");
 		eMessageVariables.put("taskid", "taskId-1");
@@ -222,8 +224,6 @@ public class NotifyListenerTest {
 				.thenReturn("");
 		when(category.getValue(delegateExecution))
 				.thenReturn("test-category");
-		when(emailAddress.getValue(delegateExecution))
-				.thenReturn("[\"formsflowdesigner@aot-technologies.com\",\"formsflowclerk@aot-technologies.com\"]");
 		when(delegateTask.getId())
 				.thenReturn("taskId-1");
 		
@@ -254,7 +254,7 @@ public class NotifyListenerTest {
 		when(messageId.getValue(delegateExecution))
 				.thenReturn("id1");
 		notifyListener.notify(delegateTask);
-		verify(runtimeService, times(1)).startProcessInstanceByMessage(anyString(), any(Map.class));
+		verify(runtimeService, times(0)).startProcessInstanceByMessage(anyString(), any(Map.class));
 	}
 
 	/**
@@ -272,8 +272,6 @@ public class NotifyListenerTest {
 				.thenReturn("");
 		when(category.getValue(delegateExecution))
 				.thenReturn("test-category");
-		when(emailAddress.getValue(delegateExecution))
-				.thenReturn("[\"formsflowdesigner@aot-technologies.com\",\"formsflowclerk@aot-technologies.com\"]");
 		when(delegateTask.getId())
 				.thenReturn("taskId-1");
 
@@ -317,7 +315,7 @@ public class NotifyListenerTest {
 		verify(runtimeService).startProcessInstanceByMessage(messageIdCaptor.capture(),
 				messageVariableCaptor.capture());
 		Map<String, Object> eMessageVariables = new HashMap<>();
-		eMessageVariables.put(EMAIL_TO, "formsflowdesigner@aot-technologies.com,formsflowclerk@aot-technologies.com,john.honai@aot-technologies.com,peter.scots@aot-technologies.com");
+		eMessageVariables.put(EMAIL_TO, "john.honai@aot-technologies.com,peter.scots@aot-technologies.com");
 		eMessageVariables.put("name", "Team");
 		eMessageVariables.put("category", "test-category");
 		eMessageVariables.put("taskid", "taskId-1");
@@ -340,8 +338,6 @@ public class NotifyListenerTest {
 				.thenReturn("[\"forms-flow-designer\",\"forms-flow-clerk\"]");
 		when(category.getValue(delegateExecution))
 				.thenReturn("test-category");
-		when(emailAddress.getValue(delegateExecution))
-				.thenReturn("[\"formsflowdesigner@aot-technologies.com\",\"formsflowclerk@aot-technologies.com\"]");
 		when(delegateTask.getId())
 				.thenReturn("taskId-1");
 
@@ -371,7 +367,7 @@ public class NotifyListenerTest {
 		when(messageId.getValue(delegateExecution))
 				.thenReturn("id1");
 		notifyListener.notify(delegateTask);
-		verify(runtimeService, times(1)).startProcessInstanceByMessage(anyString(), any(Map.class));
+		verify(runtimeService, times(0)).startProcessInstanceByMessage(anyString(), any(Map.class));
 	}
 
 }

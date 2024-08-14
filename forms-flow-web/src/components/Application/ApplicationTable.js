@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getUserRolePermission } from "../../helper/user";
 import {
+  CLIENT,
   MULTITENANCY_ENABLED,
+  STAFF_REVIEWER,
 } from "../../constants/constants";
-
 import { CLIENT_EDIT_STATUS } from "../../constants/applicationConstants";
 import { HelperServices } from "@formsflow/service";
 import { Translation } from "react-i18next";
@@ -11,7 +13,6 @@ import ApplicationFilter from "./ApplicationFilter";
 import { Dropdown } from "react-bootstrap";
 import Pagination from "react-js-pagination";
 import { useTranslation } from "react-i18next";
-import  userRoles  from "../../constants/permissions";
 
 import {
   setApplicationListActivePage,
@@ -21,13 +22,12 @@ import {
   setCountPerpage,
 } from "../../actions/applicationActions";
 import { push } from "connected-react-router";
-import LoadingOverlay from "react-loading-overlay-ts";
+import LoadingOverlay from "react-loading-overlay";
 
 const ApplicationTable = () => {
   const dispatch = useDispatch();
   const [displayFilter, setDisplayFilter] = useState(false);
-  const searchParams = useSelector((state) => state.applications.searchParams);
-  const [filterParams, setFilterParams] = useState(searchParams);
+  const [filterParams, setFilterParams] = useState({});
   const [pageLimit, setPageLimit] = useState(5);
   const applications = useSelector(
     (state) => state.applications.applicationsList
@@ -36,7 +36,7 @@ const ApplicationTable = () => {
 
   const tenantKey = useSelector((state) => state.tenants?.tenantId);
   const redirectUrl = MULTITENANCY_ENABLED ? `/tenant/${tenantKey}/` : "/";
-  const { createSubmissions } = userRoles();
+  const userRoles = useSelector((state) => state.user.roles);
   const pageNo = useSelector((state) => state.applications?.activePage);
   const limit = useSelector((state) => state.applications?.countPerPage);
   const sortOrder = useSelector((state) => state.applications?.sortOrder);
@@ -49,7 +49,10 @@ const ApplicationTable = () => {
     (state) => state.applications?.applicationCount
   );
   const isClientEdit = (applicationStatus) => {
-    if (createSubmissions) {
+    if (
+      getUserRolePermission(userRoles, CLIENT) ||
+      getUserRolePermission(userRoles, STAFF_REVIEWER)
+    ) {
       return CLIENT_EDIT_STATUS.includes(applicationStatus);
     } else {
       return false;
@@ -92,8 +95,7 @@ const ApplicationTable = () => {
 
   const viewSubmissionDetails = (data) => (
     <button
-      data-testid={`submission-details-button-${data.id}`}
-      className="btn btn-link text-primary mt-2"
+      className="btn btn-link mt-2"
       onClick={() => submissionDetails(data)}
     >
       <Translation>{(t) => t("View Details")}</Translation>{" "}
@@ -102,16 +104,16 @@ const ApplicationTable = () => {
 
   const getNoDataIndicationContent = () => {
     return (
-      <div className="div-no-application bg-transparent">
+      <div className="div-no-application">
         <label className="lbl-no-application">
           {" "}
           <Translation>{(t) => t("No submissions found")}</Translation>{" "}
         </label>
         <br />
-        {(filterParams?.id ||
-          filterParams?.applicationName ||
-          filterParams?.applicationStatus ||
-          filterParams?.modified) && (
+        {(filterParams.id ||
+          filterParams.applicationName ||
+          filterParams.applicationStatus ||
+          filterParams.modified) && (
           <label className="lbl-no-application-desc">
             {" "}
             <Translation>
@@ -133,8 +135,7 @@ const ApplicationTable = () => {
         : `${redirectUrl}form/${formData.formId}/submission/${formData.submissionId}`;
     return (
       <button
-        className="btn btn-link text-primary mt-2"
-        data-testid={`submission-view-button-${formData.id}`}
+        className="btn btn-link mt-2"
         onClick={() => window.open(url, "_blank")}
       >
         <Translation>
@@ -185,14 +186,12 @@ const ApplicationTable = () => {
                 {t("Id")}{" "}
                 {isAscending && sortBy === "id" ? (
                   <i
-                    data-testid="submission-id-desc-sort-icon"
                     onClick={() => updateSort("desc", "id")}
                     className="fa-sharp fa-solid fa-arrow-down-1-9 cursor-pointer"
                     title={t("Descending")}
                   />
                 ) : (
                   <i
-                    data-testid="submission-id-asc-sort-icon"
                     onClick={() => updateSort("asc", "id")}
                     className="fa-sharp fa-solid fa-arrow-down-9-1 cursor-pointer"
                     title={t("Ascending")}
@@ -203,14 +202,12 @@ const ApplicationTable = () => {
                 {t("Form Title")}{" "}
                 {isAscending && sortBy === "applicationName" ? (
                   <i
-                    data-testid="submission-title-desc-sort-icon"
                     onClick={() => updateSort("desc", "applicationName")}
                     className="fa-sharp fa-solid fa-arrow-down-a-z cursor-pointer"
                     title={t("Descending")}
                   />
                 ) : (
                   <i
-                    data-testid="submission-title-asc-sort-icon"
                     onClick={() => updateSort("asc", "applicationName")}
                     className="fa-sharp fa-solid fa-arrow-down-z-a cursor-pointer"
                     title={t("Ascending")}
@@ -221,16 +218,14 @@ const ApplicationTable = () => {
                 {t("Status")}
                 {isAscending && sortBy === "applicationStatus" ? (
                   <i
-                    data-testid="submission-status-desc-sort-icon"
                     onClick={() => updateSort("desc", "applicationStatus")}
-                    className="fa-sharp fa-solid fa-arrow-down-a-z  ms-2 cursor-pointer"
+                    className="fa-sharp fa-solid fa-arrow-down-a-z  ml-2 cursor-pointer"
                     title={t("Descending")}
                   />
                 ) : (
                   <i
-                    data-testid="submission-status-asc-sort-icon"
                     onClick={() => updateSort("asc", "applicationStatus")}
-                    className="fa-sharp fa-solid fa-arrow-down-z-a  ms-2 cursor-pointer"
+                    className="fa-sharp fa-solid fa-arrow-down-z-a  ml-2 cursor-pointer"
                     title={t("Ascending")}
                   />
                 )}
@@ -239,16 +234,14 @@ const ApplicationTable = () => {
                 {t("Last Modified")}
                 {isAscending && sortBy === "modified" ? (
                   <i
-                    data-testid="submission-modified-desc-sort-icon"
                     onClick={() => updateSort("desc", "modified")}
-                    className="fa-sharp fa-solid fa-arrow-down-1-9  ms-2 cursor-pointer"
+                    className="fa-sharp fa-solid fa-arrow-down-1-9  ml-2 cursor-pointer"
                     title={t("Descending")}
                   />
                 ) : (
                   <i
-                    data-testid="submission-modified-asc-sort-icon"
                     onClick={() => updateSort("asc", "modified")}
-                    className="fa-sharp fa-solid fa-arrow-down-9-1  ms-2 cursor-pointer"
+                    className="fa-sharp fa-solid fa-arrow-down-9-1  ml-2 cursor-pointer"
                     title={t("Ascending")}
                   />
                 )}
@@ -258,18 +251,17 @@ const ApplicationTable = () => {
                   <div className="filter-container-list application-filter-list-view">
                     <button
                       type="button"
-                      className="btn btn-outline-secondary tooltiptext"
+                      className="btn btn-outline-secondary "
                       onClick={() => {
                         setDisplayFilter(true);
                       }}
-                      data-testid="submission-filter-btn"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
                         height="16"
                         fill="currentColor"
-                        className="bi bi-filter me-2"
+                        className="bi bi-filter mr-2"
                         viewBox="0 0 16 16"
                       >
                         <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
@@ -316,9 +308,9 @@ const ApplicationTable = () => {
         {applications.length ? (
           <div className="d-flex justify-content-between align-items-center  flex-column flex-md-row">
             <div className="d-flex align-items-center">
-              <span className="me-2"> {t("Rows per page")}</span>
+              <span className="mr-2"> {t("Rows per page")}</span>
               <Dropdown size="sm">
-                <Dropdown.Toggle variant="light" id="dropdown-basic" data-testid="page-limit-dropdown-toggle">
+                <Dropdown.Toggle variant="light" id="dropdown-basic">
                   {pageLimit}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
@@ -329,14 +321,13 @@ const ApplicationTable = () => {
                       onClick={() => {
                         onSizePerPageChange(option.value);
                       }}
-                      data-testid={`page-limit-dropdown-item-${option.value}`}
                     >
                       {option.text}
                     </Dropdown.Item>
                   ))}
                 </Dropdown.Menu>
               </Dropdown>
-              <span className="ms-2">
+              <span className="ml-2">
                 {t("Showing")} {(limit * pageNo) - (limit - 1)} {t("to")}{" "}
                 {limit * pageNo > totalForms ? totalForms : limit * pageNo}{" "}
                 {t("of")} {totalForms} {t("results")}

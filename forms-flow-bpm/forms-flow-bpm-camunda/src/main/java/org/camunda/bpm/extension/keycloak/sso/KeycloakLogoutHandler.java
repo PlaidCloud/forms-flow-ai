@@ -33,10 +33,6 @@ public class KeycloakLogoutHandler implements LogoutSuccessHandler {
 	/** Keycloak's logout URI. */
 	private String oauth2UserLogoutUri;
 
-	/** Keycloak's Client ID. */
-	@Value("${keycloak.clientId}")
-	private String clientId;
-
 	/**
 	 * Default constructor.
 	 * @param oauth2UserAuthorizationUri configured keycloak authorization URI
@@ -57,10 +53,10 @@ public class KeycloakLogoutHandler implements LogoutSuccessHandler {
 
 		if (!ObjectUtils.isEmpty(oauth2UserLogoutUri)) {
 			// Calculate redirect URI for Keycloak, something like http://<host:port>/camunda/login
-			var requestUrl = request.getRequestURL().toString();
-			var redirectUri = requestUrl.substring(0, requestUrl.indexOf("/app"));
+			String requestUrl = request.getRequestURL().toString();
+			String redirectUri = requestUrl.substring(0, requestUrl.indexOf("/app"));
 			// Complete logout URL
-			var logoutUrl = oauth2UserLogoutUri + "?post_logout_redirect_uri=" + redirectUri + "&client_id=" + clientId;
+			String logoutUrl = oauth2UserLogoutUri + "?redirect_uri=" + redirectUri;
 			Cookie[] cookies = request.getCookies();
 			for (Cookie cookie : cookies) {
 				LOG.debug("-------cookie---------->"+cookie.getName());

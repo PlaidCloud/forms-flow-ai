@@ -18,13 +18,12 @@ import DraftFilter from "./DraftFilter";
 import DraftOperations from "./DraftOperations";
 
 import { useTranslation } from "react-i18next";
-import LoadingOverlay from "react-loading-overlay-ts";
+import LoadingOverlay from "react-loading-overlay";
 
 const DraftTable = () => {
   const dispatch = useDispatch();
   const [displayFilter, setDisplayFilter] = useState(false);
-  const searchParams = useSelector((state) => state.draft.searchParams);
-  const [filterParams, setFilterParams] = useState(searchParams);
+  const [filterParams, setFilterParams] = useState({});
   const [pageLimit, setPageLimit] = useState(5);
   const drafts = useSelector((state) => state.draft.draftList);
   const tenantKey = useSelector((state) => state.tenants?.tenantId);
@@ -70,7 +69,7 @@ const DraftTable = () => {
           <Translation>{(t) => t("No drafts found")}</Translation>{" "}
         </label>
         <br />
-        {(filterParams?.id || filterParams?.draftName || filterParams?.modified) && (
+        {(filterParams.id || filterParams.draftName || filterParams.modified) && (
           <label className="lbl-no-application-desc">
             {" "}
             <Translation>
@@ -85,7 +84,6 @@ const DraftTable = () => {
 
   const viewDraft = (data) => (
     <button
-      data-testid={`draft-view-button-${data.id}`}
       className="btn btn-link mt-2"
       onClick={() => dispatch(push(`${redirectUrl}draft/${data.id}`))}
     >
@@ -97,7 +95,6 @@ const DraftTable = () => {
     const url = `${redirectUrl}form/${formData.formId}/draft/${formData.id}/edit`;
     return (
       <button
-        data-testid={`draft-edit-button-${formData.id}`}
         className="btn btn-link mt-2"
         onClick={() => dispatch(push(url))}
       >
@@ -128,7 +125,7 @@ const DraftTable = () => {
   return (
     <>
      <LoadingOverlay active={isDraftLoading} spinner text={t("Loading...")}>
-      <div className="draftTable">
+      <div style={{ minHeight: "400px" }}>
        
           <table className="table custom-table table-responsive-sm">
             <thead>
@@ -137,14 +134,12 @@ const DraftTable = () => {
                   {t("Id")}{" "}
                   {isAscending && sortBy === "id" ? (
                     <i
-                      data-testid="draft-id-desc-sort-icon"
                       onClick={() => updateSort("desc", "id")}
                       className="fa-sharp fa-solid fa-arrow-down-1-9 cursor-pointer"
                       title={t("Descending")}
                     />
                   ) : (
                     <i
-                      data-testid="draft-id-asc-sort-icon"
                       onClick={() => updateSort("asc", "id")}
                       className="fa-sharp fa-solid fa-arrow-down-9-1 cursor-pointer"
                       title={t("Ascending")}
@@ -155,14 +150,12 @@ const DraftTable = () => {
                   {t("Title")}
                   {isAscending && sortBy === "DraftName" ? (
                     <i
-                      data-testid="draft-title-desc-sort-icon"
                       onClick={() => updateSort("desc", "DraftName")}
                       className="fa-sharp fa-solid fa-arrow-down-a-z cursor-pointer"
                       title={t("Descending")}                      
                     />
                   ) : (
                     <i
-                      data-testid="draft-title-asc-sort-icon"
                       onClick={() => updateSort("asc", "DraftName")}
                       className="fa-sharp fa-solid fa-arrow-down-z-a cursor-pointer"
                       title={t("Ascending")}
@@ -173,16 +166,14 @@ const DraftTable = () => {
                   {t("Last Modified")}{" "}
                   {isAscending && sortBy === "modified" ? (
                     <i
-                      data-testid="draft-modified-desc-sort-icon"
                       onClick={() => updateSort("desc", "modified")}
-                      className="fa-sharp fa-solid fa-arrow-down-1-9  ms-2 cursor-pointer"
+                      className="fa-sharp fa-solid fa-arrow-down-1-9  ml-2 cursor-pointer"
                       title={t("Descending")}
                     />
                   ) : (
                     <i
-                      data-testid="draft-modified-asc-sort-icon"
                       onClick={() => updateSort("asc", "modified")}
-                      className="fa-sharp fa-solid fa-arrow-down-9-1  ms-2 cursor-pointer"
+                      className="fa-sharp fa-solid fa-arrow-down-9-1  ml-2 cursor-pointer"
                       title={t("Ascending")}
                     />
                   )}
@@ -191,7 +182,6 @@ const DraftTable = () => {
                   <div className="d-flex justify-content-end filter-sort-bar mt-1">
                     <div className="filter-container-list application-filter-list-view">
                       <button
-                        data-testid="draft-filter-button"
                         type="button"
                         className="btn btn-outline-secondary "
                         onClick={() => {
@@ -203,7 +193,7 @@ const DraftTable = () => {
                           width="16"
                           height="16"
                           fill="currentColor"
-                          className="bi bi-filter me-2"
+                          className="bi bi-filter mr-2"
                           viewBox="0 0 16 16"
                         >
                           <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
@@ -249,9 +239,9 @@ const DraftTable = () => {
 
       {drafts.length ? <div className="d-flex justify-content-between align-items-center  flex-column flex-md-row">
         <div className="d-flex align-items-center">
-          <span className="me-2"> {t("Rows per page")}</span>
-          <Dropdown size="sm" data-testid="page-limit-dropdown">
-            <Dropdown.Toggle variant="light" id="dropdown-basic" data-testid="page-limit-dropdown-toggle">
+          <span className="mr-2"> {t("Rows per page")}</span>
+          <Dropdown size="sm">
+            <Dropdown.Toggle variant="light" id="dropdown-basic">
               {pageLimit}
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -259,7 +249,6 @@ const DraftTable = () => {
                 <Dropdown.Item
                   key={index}
                   type="button"
-                  data-testid={`page-limit-dropdown-item-${option.value}`}
                   onClick={() => {
                     onSizePerPageChange(option.value);
                   }}
@@ -269,7 +258,7 @@ const DraftTable = () => {
               ))}
             </Dropdown.Menu>
           </Dropdown>
-          <span className="ms-2">
+          <span className="ml-2">
             {t("Showing")} {limit * pageNo - (limit - 1)} {t("to")}{" "}
             {limit * pageNo > totalForms ? totalForms : limit * pageNo}{" "}
             {t("of")} {totalForms} {t("results")}

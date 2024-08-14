@@ -24,13 +24,7 @@ class KeycloakAdmin(ABC):
 
     @abstractmethod
     def get_users(  # pylint: disable-msg=too-many-arguments
-        self,
-        page_no: int,
-        limit: int,
-        role: bool,
-        group_name: str,
-        count: bool,
-        search: str,
+        self, page_no: int, limit: int, role: bool, group_name: str, count: bool
     ):
         """Get users."""
         raise NotImplementedError("Method not implemented")
@@ -51,34 +45,20 @@ class KeycloakAdmin(ABC):
         raise NotImplementedError("Method not implemented")
 
     @abstractmethod
-    def add_user_to_group(self, user_id: str, group_id: str, payload: Dict):
-        """Add user to group."""
+    def add_user_to_group_role(self, user_id: str, group_id: str, payload: Dict):
+        """Add user to role / group."""
         raise NotImplementedError("Method not implemented")
 
     @abstractmethod
-    def add_role_to_user(self, user_id: str, role_id: str, payload: Dict):
-        """Add role to user."""
-        raise NotImplementedError("Method not implemented")
-
-    @abstractmethod
-    def remove_user_from_group(self, user_id: str, group_id: str, payload: Dict = None):
-        """Remove group from user."""
-        raise NotImplementedError("Method not implemented")
-
-    @abstractmethod
-    def remove_role_from_user(self, user_id: str, group_id: str, payload: Dict = None):
-        """Remove role from user."""
+    def remove_user_from_group_role(
+        self, user_id: str, group_id: str, payload: Dict = None
+    ):
+        """Remove user to role / group."""
         raise NotImplementedError("Method not implemented")
 
     @abstractmethod
     def search_realm_users(  # pylint: disable-msg=too-many-arguments
-        self,
-        search: str,
-        page_no: int,
-        limit: int,
-        role: bool,
-        count: bool,
-        permission: str,
+        self, search: str, page_no: int, limit: int, role: bool, count: bool
     ):
         """Get users in a realm."""
         raise NotImplementedError("Method not implemented")
@@ -92,8 +72,3 @@ class KeycloakAdmin(ABC):
         return sorted(
             data, key=lambda k: k["name"].lower() if k.get("name") else "", reverse=True
         )
-
-    @abstractmethod
-    def add_user_to_tenant(self, data: Dict):
-        """Add user in a tenant."""
-        raise NotImplementedError("Method not implemented")

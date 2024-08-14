@@ -263,8 +263,8 @@ export default React.memo(({ processKey, tenant, isNewDiagram, mode}) => {
     <>
       <div className="d-flex align-items-center justify-content-between">
         <div>
-          <h3 className="d-flex align-items-center fw-bold">
-            <i className="fa fa-cogs me-2" aria-hidden="true" />
+          <h3 className="d-flex align-items-center font-weight-bold">
+            <i className="fa fa-cogs mr-2" aria-hidden="true" />
             <span>{t(`${mode} DMN`)}</span>
           </h3>
         </div>
@@ -279,25 +279,18 @@ export default React.memo(({ processKey, tenant, isNewDiagram, mode}) => {
               {t("Apply for all tenants")}
             </label>
           ) : null}
-          <button
-            data-testid="prcosses-dmneditor-cancel-button"
-            type="button"
-            className="btn btn-link text-dark"
-            onClick={cancel}>
+          <button type="button"
+            className="btn btn-link text-dark" onClick={cancel}>
             {t("Cancel")}
           </button>
           <Button
             variant="outline-dark"
-            className="ms-3"
+            className="ml-3"
             onClick={handleExport}
-            data-testid="prcosses-dmneditor-export-button"
           >
             {t("Export")}
           </Button>
-          <Button
-            data-testid="prcosses-dmneditor-deploy-button"
-            className="ms-3"
-            onClick={deployProcess}>
+          <Button className="ml-3" onClick={deployProcess}>
             {t("Deploy")}
           </Button>
         </div>
@@ -307,7 +300,10 @@ export default React.memo(({ processKey, tenant, isNewDiagram, mode}) => {
           <div
             id="canvas"
             ref={containerRef}
-            className="bpm-modeler-container border border-dark border-1"
+            className="bpm-modeler-container"
+            style={{
+              border: "1px solid #000000",
+            }}
           >
             {!deploymentLoading ? null : <Loading />}
           </div>
@@ -320,7 +316,6 @@ export default React.memo(({ processKey, tenant, isNewDiagram, mode}) => {
                 className="mb-3 btn-zoom"
                 title={t("Reset Zoom")}
                 onClick={() => zoomReset()}
-                data-testid="prcosses-dmneditor-zoomreset-button"
               >
                 <i className="fa fa-retweet" aria-hidden="true" />
               </button>
@@ -328,7 +323,6 @@ export default React.memo(({ processKey, tenant, isNewDiagram, mode}) => {
                 className="btn-zoom"
                 title={t("Zoom In")}
                 onClick={() => zoom()}
-                data-testid="prcosses-dmneditor-zoom-button"
               >
                 <i className="fa fa-search-plus" aria-hidden="true" />
               </button>
@@ -336,7 +330,6 @@ export default React.memo(({ processKey, tenant, isNewDiagram, mode}) => {
                 className="btn-zoom"
                 title={t("Zoom Out")}
                 onClick={() => zoomOut()}
-                data-testid="prcosses-dmneditor-zoomout-button"
               >
                 <i className="fa fa-search-minus" aria-hidden="true" />
               </button>
@@ -346,11 +339,7 @@ export default React.memo(({ processKey, tenant, isNewDiagram, mode}) => {
         <div className="properties-panel-parent" id="js-properties-panel"></div>
       </div>
       <div className="d-flex justify-content-end">
-        <Button
-          data-testid="prcosses-dmneditorhelp-button"
-          variant="info"
-          className=" me-2"
-          onClick={handleHelp}>
+        <Button variant="info" className=" mr-2" onClick={handleHelp}>
           {t("Help")}
         </Button>
       </div>

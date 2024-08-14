@@ -1,6 +1,9 @@
 import pick from "lodash/pick";
 import {
+  CLIENT,
   OPERATIONS,
+  STAFF_DESIGNER,
+  STAFF_REVIEWER,
 } from "../../../constants/constants";
 
 
@@ -23,13 +26,13 @@ export const DESCENDING = 'desc';
 export const INACTIVE = 'inactive';
 export const getOperations = (userRoles) => {
   let operations = [];
-  if (userRoles.includes('create_submissions')) {
+  if (userRoles.includes(CLIENT) || userRoles.includes(STAFF_REVIEWER)) {
     operations.push(OPERATIONS.insert);
   }
-  if (userRoles.includes('view_submissions')) {
+  if (userRoles.includes(STAFF_REVIEWER)) {
     operations.push(OPERATIONS.submission);
   }
-  if (userRoles.includes('create_designs')) {
+  if (userRoles.includes(STAFF_DESIGNER)) {
     operations.push(OPERATIONS.viewForm, OPERATIONS.delete); //  OPERATIONS.edit,
   }
   return operations;

@@ -26,9 +26,6 @@ const ApplicationFilter = ({
     (state) => state.applications.applicationStatus
   );
   const { t } = useTranslation();
-
-  const [isSearchParamEntered, setSearchParamEntered] = useState(false);
-
   const handleClick = (e) => {
     if (createSearchNode?.current?.contains(e.target)) {
       return;
@@ -49,19 +46,10 @@ const ApplicationFilter = ({
   }, []);
 
   const handleChange = (key, value) => {
-    setSearchParams((prevParams) => {
-      const updatedParams = {
-        ...prevParams,
-        [key]: value,
-      };
-  
-      const isAnyParamEntered = Object.values(updatedParams).some(
-        (param) => param !== '' && param !== null
-      );
-  
-      setSearchParamEntered(isAnyParamEntered);
-      return updatedParams;
-    });
+    setSearchParams((prevParams) => ({
+      ...prevParams,
+      [key]: value,
+    }));
   };
 
   const clearAllFilters = () => {
@@ -81,9 +69,9 @@ const ApplicationFilter = ({
       })
     );
     setFilterParams({ id: "",
-      applicationName: "",
-      applicationStatus: "",
-      modified: null,});
+    applicationName: "",
+    applicationStatus: "",
+    modified: null,});
     closeFilterModal();
   };
 
@@ -102,70 +90,59 @@ const ApplicationFilter = ({
     return selectOptions;
   };
 
-
+  
   return (
     <div
-      className="appFilter-list-view"
+      className="Filter-listview "
+      style={{ minWidth: "500px" }}
       ref={createSearchNode}
     >
 
       <div className="m-4 px-2">
         <Row className="mt-2">
           <Col>
-            <label htmlFor="idInput">{t("Id")}</label>
+            <label>{t("Id")}</label>
             <input
-              id="idInput"
               className="form-control"
               placeholder=""
               value={searchParams.id}
               onChange={(e) => handleChange("id", e.target.value)}
-              data-testid="submission-filter-id-input"
             />
           </Col>
-          <Col className="px-2">
-            <label htmlFor="applicationNameInput">{t("Form Title")}</label>
+          <Col>
+            <label>{t("Form Title")}</label>
             <input
-              id="applicationNameInput"
               className="form-control"
               placeholder=""
               value={searchParams.applicationName}
               onChange={(e) => handleChange("applicationName", e.target.value)}
-              data-testid="submission-filter-applicationname-input"
             />
           </Col>
         </Row>
       </div>
-      <hr className="mx-4" />
+      <hr className="m-0 w-100" />
       <div className="m-4 px-2">
         <Row className="mt-2">
           <Col>
-            <label htmlFor="applicationStatus">{t("Status")}</label>
+            <label>{t("Status")}</label>
             <select
-              id="applicationStatus"
               value={searchParams.applicationStatus}
               onChange={(e) => handleChange("applicationStatus", e.target.value)}
-              className="form-select w-100 text-truncate"
-              data-testid="submission-filter-applicationstatus-dropdown"
+              className="form-control p-1"
             >
-              <option value="" hidden>
-                {t("Select a status")}
-              </option>
+              <option value=""></option>
               {getApplicationStatusOptions(applicationStatusOptions).map(
                 (option) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                    data-testid={`submission-filter-applicationstatus-${option.value}`}>
+                  <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 )
               )}
             </select>
           </Col>
-          <Col className="ms-2 me-4" >
-            <label htmlFor="modifiedDateRange" >{t("Modified Date")}</label>
+          <Col className="mr-2">
+            <label>{t("Modified Date")}</label>
             <DateRangePicker
-              id="modifiedDateRange"
               onChange={(selectedRange) => {
                 handleChange("modified", selectedRange);
               }}
@@ -177,40 +154,29 @@ const ApplicationFilter = ({
               yearPlaceholder="yyyy"
               calendarAriaLabel="Select the date"
               dayAriaLabel="Select the day"
-              monthAriaLabel="Select the month"
-              yearAriaLabel="Select the year"
               clearAriaLabel="Click to clear"
-              nativeInputAriaLabel="Date"
-              data-testid="submission-filter-modified-daterange"
             />
           </Col>
         </Row>
       </div>
-      <hr className="w-100" />
-      <Row className="m-3 filter-cancel-btn-container ">
-        <Col className="px-0">
+      <hr className="mx-4" />
+    <Row className="m-3 filter-cancel-btn-container ">
+        <Col className="px-0 text-left">
           <button
             className="btn btn-link text-danger"
             onClick={clearAllFilters}
-            data-testid="submission-filter-clear-button"
           >
             {t("Clear All Filters")}
           </button>
         </Col>
-        <Col className="d-flex justify-content-end">
+        <Col className="text-right">
           <button
-            className="btn btn-link text-dark me-1 "
+            className="btn btn-link text-dark mr-1 "
             onClick={closeFilterModal}
-            data-testid="submission-filter-close-button"
           >
             {t("Cancel")}
           </button>
-          <button
-            className="btn btn-dark"
-            onClick={applyFilters}
-            disabled={!isSearchParamEntered}
-            data-testid="submission-filter-apply-button"
-          >
+          <button className="btn btn-dark" onClick={applyFilters}>
             {t("Show results")}
           </button>
         </Col>

@@ -14,4 +14,3 @@ class RolesGroupsSchema(Schema):
     id = fields.Str(dump_only=True)
     name = fields.Str(required=True)
     description = fields.Str()
-    permissions = fields.List(fields.Str())

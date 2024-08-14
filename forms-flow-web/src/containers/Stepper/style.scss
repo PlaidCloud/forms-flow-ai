@@ -1,9 +1,8 @@
-@import "../../variables.scss";
 
-.ff-stepper {
+.fwf-stepper {
   display: flex;
   padding: 0;
-  .ff-step {
+  .fwf-step {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -18,7 +17,7 @@
         width: calc(100% + 2.94vw - 5vw);
         left: calc(50% + 0px);
         height: 1px;
-        background-color: $gray-400; 
+        background-color: var(--color-gray-400); // Uncommented this line
         order: -10;
         transition: background-color 0.7s ease-in-out;
       }
@@ -26,39 +25,39 @@
 
     &.active { // Modified the active class selector
       &:after {
-        background-color: $primary;
+        background-color: var(--color-primary);
         transition: background-color 0.7s ease-in-out;
       }
     }
   }
 
-  .ff-step-no {
-    color: $white;
+  .fwf-step-no {
+    color: var(--color-white);
     padding: 4px;
     width: 22px;
     height: 22px;
     font-size: 10px;
     border-radius: 50%;
-    background-color: $gray-600;
+    background-color:  var(--color-gray-600);
     margin-bottom: 0.5rem;
     z-index: 5;
     transition: color 1s ease-in-out, background-color 0.6s ease-in-out;
 
     &.active { // Modified the active class selector
-      background-color: $primary;
-      color: $white;
+      background-color: var(--color-primary);
+      color: var(--color-white);
     }
   }
 
-  .ff-step-label {
-    color: $gray-600;
+  .fwf-step-label {
+    color: var(--color-gray-600);
     font-size: 16px;
     padding-left: var(--spacing);
     padding-right: var(--spacing);
     transition: color 0.2s ease-in-out, font-weight 0.2s ease-in-out;
 
     &.active { // Modified the active class selector
-      color:$primary;
+      color:var(--color-primary);
       font-weight: 600;
     }
   }

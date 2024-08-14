@@ -14,7 +14,9 @@ import cloneDeep from "lodash/cloneDeep";
 
 import Loading from "../../../../containers/Loading";
 import {
-  OPERATIONS, 
+  OPERATIONS,
+  CLIENT,
+  STAFF_REVIEWER,
   MULTITENANCY_ENABLED,
 } from "../../../../constants/constants";
 import Confirm from "../../../../containers/Confirm";
@@ -30,9 +32,11 @@ import { Translation } from "react-i18next";
 
 const getOperations = (userRoles) => {
   let operations = [];
-  if (userRoles.includes('view_submissions')) {
+  if (userRoles.includes(STAFF_REVIEWER)) {
     operations.push(OPERATIONS.view /*, OPERATIONS.deleteSubmission*/);
-  } 
+  } else if (userRoles.includes(CLIENT)) {
+    operations.push(OPERATIONS.view);
+  }
   return operations;
 };
 
@@ -106,16 +110,16 @@ const List = React.memo((props) => {
         onYes={() => onYes(submissionFormId, submissionId, submissions)}
       ></Confirm>
       <div className="main-header">
-        <Link className="d-flex" to={`${redirectUrl}form`}>
+        <Link className="back-icon" to={`${redirectUrl}form`}>
           <i className="fa fa-chevron-left fa-lg" />
         </Link>
-        {/*        <span className="ms-3">
+        {/*        <span className="ml-3">
                         <img src="/form.svg" width="30" height="30" alt="form" />
                     </span>*/}
-        <h3 className="ms-3">
+        <h3 className="ml-3">
           <span className="task-head-details d-flex align-items-center">
             {" "}
-            <i className="fa-solid fa-file-lines me-2" aria-hidden="true" />
+            <i className="fa-solid fa-file-lines mr-2" aria-hidden="true" />
             <span className="forms-text">
               <Translation>{(t) => t("Forms")}</Translation> /
             </span>

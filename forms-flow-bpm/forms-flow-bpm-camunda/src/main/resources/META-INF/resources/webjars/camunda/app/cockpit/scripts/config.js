@@ -37,8 +37,7 @@ export default {
         'custom/logout',
         'scripts/definition-historic-activities.js',
         'scripts/instance-historic-activities.js',
-        'scripts/instance-route-history.js',
-		'../identity-keycloak/scripts/identity-keycloak-auth.js'
+        'scripts/instance-route-history.js'
     ],
     disableWelcomeMessage: true,
     // userOperationLogAnnotationLength: 5000,

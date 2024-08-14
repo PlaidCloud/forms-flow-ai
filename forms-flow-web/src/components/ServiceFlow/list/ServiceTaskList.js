@@ -13,15 +13,14 @@ import {
   getProcessDataObjectFromList,
   getFormattedDateAndTime,
 } from "../../../apiManager/services/formatterService";
+import TaskFilterComponent from "./search/TaskFilterComponent";
 import Pagination from "react-js-pagination";
 import { push } from "connected-react-router";
 import { MAX_RESULTS } from "../constants/taskConstants";
 import { getFirstResultIndex } from "../../../apiManager/services/taskSearchParamsFormatterService";
 import TaskVariable from "./TaskVariable";
 import { MULTITENANCY_ENABLED } from "../../../constants/constants";
-import _ from "lodash";
-const ServiceFlowTaskList = React.memo((props) => {
-  const {expandedTasks,setExpandedTasks} = props;
+const ServiceFlowTaskList = React.memo(() => {
   const { t } = useTranslation();
   const taskList = useSelector((state) => state.bpmTasks.tasksList);
   const tasksCount = useSelector((state) => state.bpmTasks.tasksCount);
@@ -43,16 +42,11 @@ const ServiceFlowTaskList = React.memo((props) => {
 
   useEffect(() => {
     if (selectedFilter?.id) {
-        const reqDataProcessVariables = reqData?.criteria?.processVariables || [];
-        const selectedProcessVariables =  selectedFilter?.criteria?.processVariables || [];
-         
         const selectedBPMFilterParams = {
           ...selectedFilter,
           criteria: {
             ...selectedFilter?.criteria,
-            ...reqData?.criteria,
-            processVariables:_.isEqual(reqDataProcessVariables, selectedProcessVariables) 
-            ? selectedProcessVariables : [...reqDataProcessVariables,...selectedProcessVariables]
+            ...reqData?.criteria
           }
         };
       dispatch(setBPMTaskLoader(true));
@@ -76,14 +70,11 @@ const ServiceFlowTaskList = React.memo((props) => {
     );
   };
 
-  
-
-  const renderTaskList = () => { 
+  const renderTaskList = () => {
     if ((tasksCount || taskList.length) && selectedFilter) {
       return (
         <>
-          <div className="min-vh-67"
-          >
+          <div style={{minHeight:"67vh"}}>
           {taskList.map((task, index) => (
             <div
               className={`clickable shadow border  ${
@@ -94,12 +85,12 @@ const ServiceFlowTaskList = React.memo((props) => {
             >
              
                 <div className="col-12 px-0">
-                  <h5 className="fw-bold">{task.name}</h5>
+                  <h5 className="font-weight-bold">{task.name}</h5>
                 </div>
              
-              <div className="fs-16 d-flex justify-content-between">
-              <div className="pe-0 mw-65 text-truncate">
-                  <span data-toggle="tooltip" title={t("Workflow")}>
+              <div className="font-size-16 d-flex justify-content-between">
+                <div className="pr-0" style={{ maxWidth: "65%" }}>
+                  <span data-toggle="tooltip" title="Form Name">
                     {
                       getProcessDataObjectFromList(
                         processList,
@@ -111,16 +102,17 @@ const ServiceFlowTaskList = React.memo((props) => {
                 <div
                   data-toggle="tooltip"
                   title={t("Task assignee")}
-                  className="pe-0 text-right d-inline-block text-truncate"  
+                  className="pr-0 text-right d-inline-block text-truncate"
+                  style={{maxWidth:"150"}}
                 >
                   <span> {task.assignee}</span>
                 </div>
               </div>
               <div
-                className="d-flex justify-content-between service-task-action "
+                className="d-flex justify-content-between text-muted"
+                style={{ marginBottom: "-8px", fontSize: "14px" }}
               >
-                <div className="mw-70"
-                >
+                <div style={{ maxWidth: "70%" }}>
                   <span
                     className="tooltiptext"
                     title={task.due ? getFormattedDateAndTime(task.due) : ""}
@@ -153,17 +145,13 @@ const ServiceFlowTaskList = React.memo((props) => {
                     {t("Created")} {moment(task.created).fromNow()}
                   </span>
                 </div>
-                <div className="pe-0 text-right" title={t("Priority")}>
+                <div className="pr-0 text-right tooltips" title={t("Priority")}>
                   {task.priority}
                 </div>
               </div>
 
               {task._embedded?.variable && (
-                <TaskVariable 
-                expandedTasks={expandedTasks}
-                setExpandedTasks={setExpandedTasks}
-                taskId={task?.id}  
-                variables={task._embedded?.variable || []} />
+                <TaskVariable variables={task._embedded?.variable || []} />
               )}
             </div>
           ))}
@@ -189,10 +177,10 @@ const ServiceFlowTaskList = React.memo((props) => {
 
         </>
       );
-    } else { 
+    } else {
       return (
         <div className="d-flex align-items-center justify-content-center py-4 px-2">
-          <i className="fa fa-info-circle me-2" />
+          <i className="fa fa-info-circle mr-2" />
           {t("No task matching filters found.")}
         </div>
       );
@@ -202,6 +190,7 @@ const ServiceFlowTaskList = React.memo((props) => {
   return (
     <>
       <ListGroup className="service-task-list d-block">
+        <TaskFilterComponent  totalTasks={isTaskListLoading ? 0 : tasksCount} />
         {isTaskListLoading ? <Loading /> : renderTaskList()}
       </ListGroup>
     </>

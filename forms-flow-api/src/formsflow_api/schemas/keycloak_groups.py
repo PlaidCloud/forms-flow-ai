@@ -1,5 +1,4 @@
 """This is for marshmallowing Keycloak groups field."""
-
 from marshmallow import EXCLUDE, Schema, fields
 
 

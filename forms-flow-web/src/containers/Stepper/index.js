@@ -6,24 +6,24 @@ const Stepper = ({ steps,activeStep,onClick}) => {
   return (
     <>
       <div>
-        <ol className="ff-stepper">
+        <ol className="fwf-stepper">
           {steps.map((label, index) => (
             <li
               key={index}
-              className={`ff-step ${
+              className={`fwf-step ${
                 activeStep > index ? "active " : ""
               } ${onClick ? "cursor-pointer " : "cursor-default "}`}
               onClick={onClick || defaultFunction}
             >
               <span
-                className={`ff-step-no ${
+                className={`fwf-step-no ${
                   activeStep >= index ? "active" : ""
                 }`}
               >
                 {index + 1}
               </span>
               <span
-                className={`ff-step-label ${
+                className={`fwf-step-label ${
                   activeStep >= index ? "active" : ""
                 }`}
               >

@@ -4,12 +4,7 @@ from http import HTTPStatus
 
 from flask import request
 from flask_restx import Namespace, Resource, fields
-from formsflow_api_utils.utils import (
-    VIEW_SUBMISSIONS,
-    auth,
-    cors_preflight,
-    profiletime,
-)
+from formsflow_api_utils.utils import auth, cors_preflight, profiletime
 
 from formsflow_api.schemas import ApplicationHistorySchema
 from formsflow_api.services import ApplicationHistoryService
@@ -53,7 +48,7 @@ class ApplicationHistoryResource(Resource):
     """Resource for managing state."""
 
     @staticmethod
-    @auth.has_one_of_roles([VIEW_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.response(200, "OK:- Successful request.", model=application_history_list_model)
     @API.response(
@@ -94,11 +89,12 @@ class ApplicationHistoryResource(Resource):
         """Post a new history entry using the request body."""
         application_history_json = request.get_json()
 
+        # try:
         application_history_schema = ApplicationHistorySchema()
         dict_data = application_history_schema.load(application_history_json)
         dict_data["application_id"] = application_id
         application_history = ApplicationHistoryService.create_application_history(
-            data=dict_data, application_id=application_id
+            data=dict_data
         )
 
         response, status = (

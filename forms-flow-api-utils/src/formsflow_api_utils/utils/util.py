@@ -12,22 +12,17 @@ from typing import Tuple
 
 from .constants import (
     ALLOW_ALL_ORIGINS,
+    CLIENT_GROUP,
+    DESIGNER_GROUP,
+    REVIEWER_GROUP,
 )
 from .enums import (
     ApplicationSortingParameters,
     DraftSortingParameters,
     FormioRoles,
-    ProcessSortingParameters,
 )
 from .translations.translations import translations
-from .permisions import (
-    CREATE_DESIGNS,
-VIEW_DESIGNS,
-MANAGE_TASKS,
-VIEW_TASKS,
-CREATE_SUBMISSIONS,
-VIEW_SUBMISSIONS,
-)
+
 
 def cors_preflight(methods: str = "GET"):
     """Render an option method on the class."""
@@ -65,9 +60,6 @@ def validate_sort_order_and_order_by(order_by: str, sort_order: str) -> bool:
         ApplicationSortingParameters.Modified,
         ApplicationSortingParameters.FormName,
         DraftSortingParameters.Name,
-        ProcessSortingParameters.Name,
-        ProcessSortingParameters.Created,
-        ProcessSortingParameters.Modified,
     ]:
         order_by = None
     else:
@@ -112,11 +104,11 @@ def get_role_ids_from_user_groups(role_ids, user_role):
     if role_ids is None or user_role is None:
         return None
 
-    if any(permission in user_role for permission in [ CREATE_DESIGNS, VIEW_DESIGNS]):
+    if DESIGNER_GROUP in user_role:
         return role_ids
-    if any(permission in user_role for permission in [ MANAGE_TASKS, VIEW_TASKS]):
+    if REVIEWER_GROUP in user_role:
         return filter_list_by_user_role(FormioRoles.REVIEWER.name, role_ids)
-    if any(permission in user_role for permission in [ CREATE_SUBMISSIONS, VIEW_SUBMISSIONS]):
+    if CLIENT_GROUP in user_role:
         return filter_list_by_user_role(FormioRoles.CLIENT.name, role_ids)
     return None
 

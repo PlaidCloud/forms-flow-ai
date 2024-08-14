@@ -8,12 +8,7 @@ from flask_restx import Namespace, Resource, fields
 from formsflow_api_utils.exceptions import BusinessException
 from formsflow_api_utils.services.external import FormioService
 from formsflow_api_utils.utils import (
-    CREATE_DESIGNS,
-    CREATE_FILTERS,
-    CREATE_SUBMISSIONS,
-    MANAGE_ALL_FILTERS,
-    VIEW_DESIGNS,
-    VIEW_FILTERS,
+    DESIGNER_GROUP,
     auth,
     cors_preflight,
     profiletime,
@@ -25,7 +20,6 @@ from formsflow_api.schemas import (
 )
 from formsflow_api.services import (
     ApplicationService,
-    FilterService,
     FormHistoryService,
     FormProcessMapperService,
 )
@@ -165,52 +159,6 @@ form_history_response_model = API.inherit(
         "change_log": fields.Nested(form_history_change_log_model),
     },
 )
-forms_list_model = API.model(
-    "Forms List Model",
-    {"formTitle": fields.String(), "type": fields.String(), "content": fields.Raw()},
-)
-workflows_list_model = API.model(
-    "Workflows List",
-    {
-        "processKey": fields.String(),
-        "processName": fields.String(),
-        "type": fields.String(),
-        "content": fields.String(),
-    },
-)
-dmns_list_model = API.model(
-    "DMN List",
-    {"key": fields.String(), "type": fields.String(), "content": fields.String()},
-)
-resource_details_model = API.model("resource_details", {"name": fields.String()})
-
-authorization_model = API.model(
-    "Authorization",
-    {
-        "resourceId": fields.String(),
-        "resourceDetails": fields.Nested(resource_details_model),
-        "roles": fields.List(fields.String),
-        "userName": fields.String(),
-    },
-)
-
-authorization_list_model = API.model(
-    "Authorization List",
-    {
-        "APPLICATION": fields.Nested(authorization_model),
-        "FORM": fields.Nested(authorization_model),
-        "DESIGNER": fields.Nested(authorization_model),
-    },
-)
-export_response_model = API.model(
-    "ExportResponse",
-    {
-        "forms": fields.List(fields.Nested(forms_list_model)),
-        "workflows": fields.List(fields.Nested(workflows_list_model)),
-        "rules": fields.List(fields.Nested(dmns_list_model)),
-        "authorizations": fields.List(fields.Nested(authorization_list_model)),
-    },
-)
 
 
 @cors_preflight("GET,POST,OPTIONS")
@@ -219,16 +167,7 @@ class FormResourceList(Resource):
     """Resource for getting forms."""
 
     @staticmethod
-    @auth.has_one_of_roles(
-        [
-            CREATE_DESIGNS,
-            VIEW_DESIGNS,
-            CREATE_SUBMISSIONS,
-            CREATE_FILTERS,
-            VIEW_FILTERS,
-            MANAGE_ALL_FILTERS,
-        ]
-    )
+    @auth.require
     @profiletime
     @API.doc(
         params={
@@ -278,7 +217,6 @@ class FormResourceList(Resource):
         sort_order: str = dict_data.get("sort_order", "desc")
         form_type: str = dict_data.get("form_type", None)
         is_active = dict_data.get("is_active", None)
-        active_forms = dict_data.get("active_forms", None)
 
         if form_type:
             form_type = form_type.split(",")
@@ -296,8 +234,7 @@ class FormResourceList(Resource):
             sort_order=sort_order,
             form_type=form_type,
             is_active=is_active,
-            is_designer=auth.has_any_role([CREATE_DESIGNS, VIEW_DESIGNS]),
-            active_forms=active_forms,
+            is_designer=auth.has_role([DESIGNER_GROUP]),
         )
         return (
             (
@@ -312,7 +249,7 @@ class FormResourceList(Resource):
         )
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_DESIGNS])
+    @auth.require
     @profiletime
     @API.doc(body=mapper_create_model)
     @API.response(
@@ -349,7 +286,7 @@ class FormResourceById(Resource):
     """Resource for managing forms by mapper_id."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_DESIGNS])
+    @auth.require
     @profiletime
     @API.response(200, "OK:- Successful request.", model=mapper_create_response_model)
     @API.response(
@@ -372,7 +309,7 @@ class FormResourceById(Resource):
         )
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_DESIGNS])
+    @auth.require
     @profiletime
     @API.response(200, "OK:- Successful request.")
     @API.response(
@@ -395,7 +332,7 @@ class FormResourceById(Resource):
         return "Deleted", HTTPStatus.OK
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_DESIGNS])
+    @auth.require
     @API.doc(body=mapper_update_model)
     @API.response(
         200, "CREATED:- Successful request.", model=mapper_create_response_model
@@ -417,9 +354,6 @@ class FormResourceById(Resource):
         application_json = request.get_json()
 
         if "taskVariable" in application_json:
-            FilterService.update_filter_variables(
-                application_json.get("taskVariable"), application_json.get("formId")
-            )
             application_json["taskVariable"] = json.dumps(
                 application_json.get("taskVariable")
             )
@@ -444,16 +378,7 @@ class FormResourceByFormId(Resource):
     """Resource for managing forms by corresponding form_id."""
 
     @staticmethod
-    @auth.has_one_of_roles(
-        [
-            CREATE_DESIGNS,
-            VIEW_DESIGNS,
-            CREATE_SUBMISSIONS,
-            CREATE_FILTERS,
-            VIEW_FILTERS,
-            MANAGE_ALL_FILTERS,
-        ]
-    )
+    @auth.require
     @profiletime
     @API.response(
         200, "CREATED:- Successful request.", model=mapper_create_response_model
@@ -491,13 +416,7 @@ class FormResourceApplicationCount(Resource):
     """Resource for getting applications count according to a mapper id."""
 
     @staticmethod
-    @auth.has_one_of_roles(
-        [
-            CREATE_DESIGNS,
-            VIEW_DESIGNS,
-            CREATE_SUBMISSIONS,
-        ]
-    )
+    @auth.require
     @profiletime
     @API.response(200, "OK:- Successful request.", model=application_count_model)
     @API.response(
@@ -559,7 +478,7 @@ class FormioFormResource(Resource):
     """Resource for formio form creation."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_DESIGNS])
+    @auth.has_one_of_roles([DESIGNER_GROUP])
     @profiletime
     @API.doc(body=form_create_model)
     @API.response(
@@ -611,7 +530,7 @@ class FormioFormUpdateResource(Resource):
     """Resource for formio form Update."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_DESIGNS])
+    @auth.has_one_of_roles([DESIGNER_GROUP])
     @profiletime
     def put(form_id: str):
         """Formio form update method."""
@@ -643,7 +562,7 @@ class FormHistoryResource(Resource):
     """Resource for form history."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_DESIGNS])
+    @auth.has_one_of_roles([DESIGNER_GROUP])
     @profiletime
     @API.doc(body=form_create_model)
     @API.response(200, "OK:- Successful request.", model=form_history_response_model)
@@ -663,33 +582,3 @@ class FormHistoryResource(Resource):
         """Getting form history."""
         FormProcessMapperService.check_tenant_authorization_by_formid(form_id=form_id)
         return FormHistoryService.get_all_history(form_id)
-
-
-@cors_preflight("GET,OPTIONS")
-@API.route("/<int:mapper_id>/export", methods=["GET", "OPTIONS"])
-class ExportById(Resource):
-    """Resource to support export by mapper_id."""
-
-    @staticmethod
-    @auth.require
-    @profiletime
-    @API.response(200, "OK:- Successful request.", model=export_response_model)
-    @API.response(
-        400,
-        "BAD_REQUEST:- Invalid request.",
-    )
-    @API.response(
-        401,
-        "UNAUTHORIZED:- Authorization header not provided or an invalid token passed.",
-    )
-    @API.response(
-        403,
-        "FORBIDDEN:- Authorization will not help.",
-    )
-    def get(mapper_id: int):
-        """Export by mapper_id."""
-        form_service = FormProcessMapperService()
-        return (
-            form_service.export(mapper_id),
-            HTTPStatus.OK,
-        )

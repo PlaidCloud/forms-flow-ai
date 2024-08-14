@@ -26,8 +26,7 @@ window.camTasklistConf = {
 
 export default {
     customScripts: [
-        'custom/logout',
-		'../identity-keycloak/scripts/identity-keycloak-auth.js'
+        'custom/logout'
     ]
 };
 

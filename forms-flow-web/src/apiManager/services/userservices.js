@@ -57,11 +57,3 @@ export const fetchUsers = (
 
   return RequestService.httpGETRequest(url);
 };
-
-
-export const updateDefaultFilter = (defaultFilter) => {
-  return RequestService.httpPOSTRequest(
-    API.UPDATE_DEFAULT_FILTER,
-    {defaultFilter}
-  );
-};

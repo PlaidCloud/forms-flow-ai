@@ -1,5 +1,4 @@
 """Utility module for Document generation."""
-
 import base64
 import urllib.parse
 

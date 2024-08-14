@@ -1,13 +1,7 @@
 """Test suite for metrics API endpoint."""
-
 import datetime
 
 import pytest
-from formsflow_api_utils.utils import (
-    CREATE_DESIGNS,
-    CREATE_SUBMISSIONS,
-    VIEW_DASHBOARDS,
-)
 
 from tests.utilities.base_test import (
     get_application_create_payload,
@@ -27,7 +21,7 @@ tomorrow = (
 @pytest.mark.parametrize("orderBy", METRICS_ORDER_BY_VALUES)
 def test_metrics_get_200(orderBy, app, client, session, jwt):
     """Tests the API/metrics endpoint with valid param."""
-    token = get_token(jwt, VIEW_DASHBOARDS)
+    token = get_token(jwt)
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
     rv = client.get(
         f"/metrics?from={today}&to={tomorrow}&orderBy={orderBy}", headers=headers
@@ -45,22 +39,20 @@ def test_metrics_get_401(orderBy, app, client, session):
 @pytest.mark.parametrize("orderBy", METRICS_ORDER_BY_VALUES)
 def test_metrics_list_view(orderBy, app, client, session, jwt):
     """Tests API/metrics endpoint with valid data."""
-    token = get_token(jwt, role=CREATE_DESIGNS)
+    token = get_token(jwt)
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
 
     rv = client.post("/form", headers=headers, json=get_form_request_payload())
     assert rv.status_code == 201
     form_id = rv.json.get("formId")
-    token = get_token(jwt, role=CREATE_SUBMISSIONS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.post(
         "/application/create",
         headers=headers,
         json=get_application_create_payload(form_id),
     )
     assert rv.status_code == 201
-    token = get_token(jwt, VIEW_DASHBOARDS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.get(
         f"/metrics?from={today}&to={tomorrow}&orderBy={orderBy}", headers=headers
     )
@@ -80,22 +72,20 @@ def test_metrics_detailed_get_401(orderBy, app, client, session):
 @pytest.mark.parametrize("orderBy", METRICS_ORDER_BY_VALUES)
 def test_metrics_detailed_view(orderBy, app, client, session, jwt):
     """Tests API/metrics/<form_id> endpoint with valid data."""
-    token = get_token(jwt, role=CREATE_DESIGNS)
+    token = get_token(jwt)
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
 
     rv = client.post("/form", headers=headers, json=get_form_request_payload())
     assert rv.status_code == 201
     form_id = rv.json.get("formId")
-    token = get_token(jwt, CREATE_SUBMISSIONS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.post(
         "/application/create",
         headers=headers,
         json=get_application_create_payload(form_id),
     )
     assert rv.status_code == 201
-    token = get_token(jwt, VIEW_DASHBOARDS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.get(
         f"/metrics/{form_id}?from={today}&to={tomorrow}&orderBy={orderBy}&formType=form",
         headers=headers,
@@ -108,22 +98,20 @@ def test_metrics_detailed_view(orderBy, app, client, session, jwt):
 @pytest.mark.parametrize(("pageNo", "limit"), ((1, 5), (1, 10), (1, 20)))
 def test_metrics_paginated_list(orderBy, pageNo, limit, app, client, session, jwt):
     """Tests API/metrics endpoint with valid data."""
-    token = get_token(jwt, role=CREATE_DESIGNS)
+    token = get_token(jwt)
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
 
     rv = client.post("/form", headers=headers, json=get_form_request_payload())
     assert rv.status_code == 201
     form_id = rv.json.get("formId")
-    token = get_token(jwt, CREATE_SUBMISSIONS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.post(
         "/application/create",
         headers=headers,
         json=get_application_create_payload(form_id),
     )
     assert rv.status_code == 201
-    token = get_token(jwt, VIEW_DASHBOARDS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.get(
         f"/metrics?from={today}&to={tomorrow}&orderBy={orderBy}&pageNo={pageNo}&limit={limit}",
         headers=headers,
@@ -144,22 +132,20 @@ def test_metrics_paginated_sorted_list(
     orderBy, pageNo, limit, sortBy, sortOrder, app, client, session, jwt
 ):
     """Tests API/metrics endpoint with valid data."""
-    token = get_token(jwt, role=CREATE_DESIGNS)
+    token = get_token(jwt)
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
 
     rv = client.post("/form", headers=headers, json=get_form_request_payload())
     assert rv.status_code == 201
     form_id = rv.json.get("formId")
-    token = get_token(jwt, CREATE_SUBMISSIONS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.post(
         "/application/create",
         headers=headers,
         json=get_application_create_payload(form_id),
     )
     assert rv.status_code == 201
-    token = get_token(jwt, VIEW_DASHBOARDS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.get(
         f"/metrics?from={today}&to={tomorrow}&orderBy={orderBy}&pageNo={pageNo}&limit={limit}&sortBy={sortBy}&sortOrder={sortOrder}",
         headers=headers,
@@ -180,22 +166,20 @@ def test_metrics_paginated_filtered_list(
     orderBy, pageNo, limit, formName, app, client, session, jwt
 ):
     """Tests API/metrics endpoint with valid data."""
-    token = get_token(jwt, role=CREATE_DESIGNS)
+    token = get_token(jwt)
     headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
 
     rv = client.post("/form", headers=headers, json=get_form_request_payload())
     assert rv.status_code == 201
     form_id = rv.json.get("formId")
-    token = get_token(jwt, CREATE_SUBMISSIONS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.post(
         "/application/create",
         headers=headers,
         json=get_application_create_payload(form_id),
     )
     assert rv.status_code == 201
-    token = get_token(jwt, VIEW_DASHBOARDS)
-    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+
     rv = client.get(
         f"/metrics?from={today}&to={tomorrow}&orderBy={orderBy}&pageNo={pageNo}&limit={limit}&formName={formName}",
         headers=headers,

@@ -19,23 +19,23 @@ const CreateTemplateConfirmModal = ({modalOpen,handleModalChange,onConfirm}) => 
               </Modal.Title>
             </div>
 
-            <div className="d-flex align-items-center">
+            <div>
               <button
                 type="button"
-                className="btn-close"
+                className="close"
                 onClick={() => {
                   handleModalChange();
                 }}
                 aria-label="Close"
-                data-testid="form-duplicate-modal-close-button"
               >
+                <span aria-hidden="true">&times;</span>
               </button>
             </div>
           </Modal.Header>
 
           <Modal.Body>
             <div className="d-flex align-items-start p-3">
-              <i className="fa fa-info-circle text-primary pt-1 me-2"></i>
+              <i className="fa fa-info-circle text-primary mr-2"></i>
               <span > 
               {t("Do you want to create a duplicate form and associated workflow from existing form ?")} 
               </span>
@@ -44,8 +44,8 @@ const CreateTemplateConfirmModal = ({modalOpen,handleModalChange,onConfirm}) => 
           </Modal.Body>
           <Modal.Footer>
             <div className='d-flex justify-content-end'>
-                <button data-testid="form-duplicate-no-button" className='btn btn-danger me-2' onClick={()=>{handleModalChange();}}>{t("No")}</button>
-                <button data-testid="form-duplicate-yes-button" className='btn btn-primary' onClick={()=>{onConfirm();}}>{t("Yes")}</button>
+                <button className='btn btn-danger mr-2' onClick={()=>{handleModalChange();}}>{t("No")}</button>
+                <button className='btn btn-primary' onClick={()=>{onConfirm();}}>{t("Yes")}</button>
             </div>
           </Modal.Footer>
         </Modal>

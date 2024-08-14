@@ -139,7 +139,4 @@ export const appState = {
     isFormChecked: false,
     isAllFormChecked: false,
   },
-  tenants:{ 
-  tenantData: {}
-  }
 };

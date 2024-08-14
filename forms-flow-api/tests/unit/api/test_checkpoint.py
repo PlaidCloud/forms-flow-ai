@@ -1,5 +1,4 @@
 """Test suite for Checkpoint API endpoint."""
-
 from pytest import mark
 
 from formsflow_api import create_app

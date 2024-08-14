@@ -69,15 +69,12 @@ class CustomTimedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
         return result
 
 
-def register_log_handlers(app, log_file, when, interval, backupCount, configure_log_file: bool = True):
+def register_log_handlers(app, log_file, when, interval, backupCount):
     """Configure console and file log handlers."""
     logs = logging.StreamHandler()
     logs.setFormatter(CustomFormatter())
-    if configure_log_file:
-        log_dir = os.path.dirname(log_file)
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
-        file_handler = CustomTimedRotatingFileHandler(log_file, when, interval, backupCount)
-        app.logger.handlers = [logs, file_handler]
-    else:
-        app.logger.handlers = [logs]
+    log_dir = os.path.dirname(log_file)
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    file_handler = CustomTimedRotatingFileHandler(log_file, when, interval, backupCount)
+    app.logger.handlers = [logs, file_handler]

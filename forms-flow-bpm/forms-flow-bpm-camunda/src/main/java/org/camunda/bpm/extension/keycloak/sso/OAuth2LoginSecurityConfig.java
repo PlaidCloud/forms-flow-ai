@@ -1,12 +1,9 @@
 package org.camunda.bpm.extension.keycloak.sso;
 
 import jakarta.inject.Inject;
-import org.camunda.bpm.extension.keycloak.config.KeycloakCockpitConfiguration;
-import org.camunda.bpm.extension.keycloak.config.KeycloakConfigurationFilterRegistrationBean;
 import org.camunda.bpm.extension.keycloak.rest.AudienceValidator;
 import org.camunda.bpm.extension.keycloak.rest.KeycloakAuthenticationFilter;
 import org.camunda.bpm.extension.keycloak.rest.RestApiSecurityConfigurationProperties;
-import org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties;
 import org.camunda.bpm.webapp.impl.security.auth.ContainerBasedAuthenticationFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -27,7 +24,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 import org.camunda.bpm.engine.IdentityService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
@@ -65,19 +61,6 @@ public class OAuth2LoginSecurityConfig  {
 	/** Access to Spring Security OAuth2 client service. */
 	@Inject
 	private OAuth2AuthorizedClientService clientService;
-
-	@Inject
-	private CamundaBpmProperties camundaBpmProperties;
-
-	@Inject
-	private KeycloakCockpitConfiguration keycloakCockpitConfiguration;
-	
-	@Value("${plugin.identity.keycloak.enableClientAuth}")
-	private boolean enableClientAuth;
-	
-	
-	@Value("${plugin.identity.keycloak.enableMultiTenancy}")
-	private boolean enableMultiTenancy;
 
 	@Bean
 	@Order(1)
@@ -162,7 +145,7 @@ public class OAuth2LoginSecurityConfig  {
 		String userNameAttribute = this.applicationContext.getEnvironment().getRequiredProperty(
 				"spring.security.oauth2.client.provider." + this.configProps.getProvider() + ".user-name-attribute");
 
-		filterRegistration.setFilter(new KeycloakAuthenticationFilter(identityService, clientService, userNameAttribute, enableMultiTenancy, enableClientAuth));
+		filterRegistration.setFilter(new KeycloakAuthenticationFilter(identityService, clientService, userNameAttribute));
 		filterRegistration.setOrder(102);
 		filterRegistration.addUrlPatterns("/engine-rest/*");
 		filterRegistration.addUrlPatterns("/engine-rest-ext/*");
@@ -197,11 +180,4 @@ public class OAuth2LoginSecurityConfig  {
 		return new RequestContextListener();
 	}
 
-	@Bean
-	public FilterRegistrationBean cockpitConfigurationFilter() {
-		return new KeycloakConfigurationFilterRegistrationBean(
-				keycloakCockpitConfiguration,
-				camundaBpmProperties.getWebapp().getApplicationPath()
-		);
-	}
 }

@@ -195,7 +195,7 @@ it("should render the item -> View component without breaking", () => {
   expect(screen.getByTestId("Form-index")).toBeInTheDocument();
 });
 
-it("should render AccessDenied component without breaking", () => {
+it("should redirect to base url  without breaking", () => {
   const spy = jest.spyOn(redux, "useSelector");
   spy.mockImplementation((callback) =>
     callback({
@@ -212,9 +212,5 @@ it("should render AccessDenied component without breaking", () => {
     path: "/form/:formId",
     route: "/form/123",
   });
-
-  expect(screen.getByTestId("access-denied-component")).toBeInTheDocument();
-  expect(screen.queryByText("Unauthorized")).not.toBeInTheDocument();
-  expect(screen.getByTestId("return-to-login-button")).toBeInTheDocument();
-  expect(screen.queryByTestId("return-to-home-button")).not.toBeInTheDocument();
+  expect(screen.queryByText("Unauthorized")).toBeInTheDocument();
 });

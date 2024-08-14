@@ -43,8 +43,7 @@ const FormHistoryModal = ({ historyModal, handleModalChange, gotoEdit }) => {
 
   return (
     <>
-      <Modal 
-        data-testid="form-history-modal"
+      <Modal
         show={historyModal}
         size="lg"
         aria-labelledby="example-custom-modal-styling-title"
@@ -56,24 +55,24 @@ const FormHistoryModal = ({ historyModal, handleModalChange, gotoEdit }) => {
             </Modal.Title>
           </div>
 
-          <div className="d-flex align-items-center">
+          <div>
             <button
               type="button"
-              className="btn-close"
+              className="close"
               onClick={() => {
                 setShowCount(3);
                 handleModalChange();
               }}
               aria-label="Close"
-              data-testid="form-history-modal-close-button"
             >
+              <span aria-hidden="true">&times;</span>
             </button>
           </div>
         </Modal.Header>
 
         <Modal.Body>
           <div className="d-flex align-items-start p-3">
-            <i className="fa fa-info-circle text-primary me-2"></i>
+            <i className="fa fa-info-circle text-primary mr-2"></i>
             <span className="text-muted h6">
             {t("Formsflow automatically saves your previous form data. Now you can switch to the previous stage and edit.")}
             </span>
@@ -91,7 +90,7 @@ const FormHistoryModal = ({ historyModal, handleModalChange, gotoEdit }) => {
                         index === 0 ? "active" : ""
                       }`}
                     >
-                      <div className="form-history">
+                      <div style={{ maxWidth: "150px", minWidth: "150px" }}>
                         <span className="text-muted text-small">
                           {formHistory.length === 1
                             ? t("Created By")
@@ -124,7 +123,6 @@ const FormHistoryModal = ({ historyModal, handleModalChange, gotoEdit }) => {
                           onClick={() =>
                             selectHistory(history.changeLog.cloned_form_id)
                           }
-                          data-testid={`form-version-${index}-revert-button`}
                         >
                           <i className="fa fa-pencil" aria-hidden="true" />
                           &nbsp;&nbsp; {t("Revert")}
@@ -141,11 +139,10 @@ const FormHistoryModal = ({ historyModal, handleModalChange, gotoEdit }) => {
                     onClick={() => {
                       handleShowMore();
                     }}
-                    data-testid="form-history-show-more-button"
                   >
                     {t("Show more")}
                     <i
-                      className="fa fa-arrow-circle-down ms-2"
+                      className="fa fa-arrow-circle-down ml-2"
                       aria-hidden="true"
                     ></i>
                   </button>

@@ -1,10 +1,10 @@
-@import "../../variables.scss";
+@import "./../../assets/styles/themes.scss";
 
 .dashboard {
    margin-top: 10px;
 
   & .line-hr {
-    border-top: 1px solid $primary-200;
+    border-top: 1px solid $light-blue;
   }
 
   & .card-counter {
@@ -14,7 +14,7 @@
 
     & .white-box {
       background: $white;
-      border: 1px solid $primary-400;
+      border: 1px solid $light-blue;
       padding: 25px;
       margin-bottom: 30px;
       font-size: larger;
@@ -22,7 +22,7 @@
 
       &.active,
       &:hover {
-        background-color: $primary-600 !important;
+        background-color: $dark-blue !important;
         color: $white;
 
         & .small-title {
@@ -62,11 +62,11 @@
 
   & .application-title {
     margin-bottom: -5px;
-    color: $dark;
+    color: $black;
   }
 
   & .dashboard-title {
-    color: $dark;
+    color: $black;
   }
 
   & .dashboard-icon-style {
@@ -83,13 +83,13 @@
   }
 
   & .react-daterange-picker__wrapper {
-    color: $dark;
+    color: $black;
     padding: 5px;
-    border: 1px solid $dark;
+    border: 1px solid $black;
     background: $white;
 
     & input {
-      color:  $primary-600;
+      color: #036;
     }
 
     & select {
@@ -97,7 +97,7 @@
       -moz-appearance: none;
       text-indent: 1px;
       text-overflow: "";
-      color:  $primary-600;
+      color: #036;
     }
 
     & .react-daterange-picker__range-divider {
@@ -113,7 +113,7 @@
       align-self: center;
       flex-direction: row;
       flex-wrap: wrap;
-      border: 1px solid $dark;
+      border: 1px solid $black;
       padding: 30px;
       border-radius: 10px;
 
@@ -176,26 +176,13 @@
 }
 
 
-.custom-input-group{
-  position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: stretch;
-}
 
 .form-select {
   width: 80px;
   height: 35px;
   border-radius: 3px;
-  border-color: $primary-100;
-}
-
-.dashboard-sort{
-  font-size: 20px;
-}
-
-.dashboard-height{
-  min-height: 60vh;
+  border-color: rgba(222, 226, 230);
+  color: #0056b3;
 }
 
 .date-select {
@@ -203,7 +190,6 @@
   height: 45px;
   cursor: pointer;
 }
-
 
 .no_submission_main {
   min-width: 100%;

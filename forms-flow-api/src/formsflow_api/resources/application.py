@@ -5,11 +5,8 @@ from http import HTTPStatus
 from flask import request
 from flask_restx import Namespace, Resource, fields
 from formsflow_api_utils.utils import (
-    CREATE_DESIGNS,
-    CREATE_SUBMISSIONS,
-    MANAGE_TASKS,
-    VIEW_SUBMISSIONS,
-    VIEW_TASKS,
+    DESIGNER_GROUP,
+    REVIEWER_GROUP,
     auth,
     cors_preflight,
     get_form_and_submission_id_from_form_url,
@@ -101,7 +98,7 @@ class ApplicationsResource(Resource):
     """Resource for managing applications."""
 
     @staticmethod
-    @auth.has_one_of_roles([VIEW_SUBMISSIONS, VIEW_TASKS, MANAGE_TASKS])
+    @auth.require
     @profiletime
     @API.doc(
         params={
@@ -171,7 +168,7 @@ class ApplicationsResource(Resource):
         modified_from_date = dict_data.get("modified_from_date")
         modified_to_date = dict_data.get("modified_to_date")
         sort_order = dict_data.get("sort_order", "desc")
-        if auth.has_role([VIEW_TASKS, MANAGE_TASKS]):
+        if auth.has_role([REVIEWER_GROUP]):
             (
                 application_schema_dump,
                 application_count,
@@ -229,7 +226,7 @@ class ApplicationResourceById(Resource):
     """Resource for getting application by id."""
 
     @staticmethod
-    @auth.has_one_of_roles([VIEW_SUBMISSIONS, VIEW_TASKS, MANAGE_TASKS])
+    @auth.require
     @profiletime
     @API.response(200, "OK:- Successful request.", model=application_model)
     @API.response(
@@ -242,7 +239,7 @@ class ApplicationResourceById(Resource):
     )
     def get(application_id: int):
         """Get application by id."""
-        if auth.has_role([VIEW_TASKS, MANAGE_TASKS]):
+        if auth.has_role([REVIEWER_GROUP]):
             (
                 application_schema_dump,
                 status,
@@ -331,7 +328,7 @@ class ApplicationResourceByFormId(Resource):
             page_no = 0
             limit = 0
 
-        if auth.has_role([VIEW_TASKS]):
+        if auth.has_role(["formsflow-reviewer"]):
             application_schema = ApplicationService.get_all_applications_form_id(
                 form_id=form_id, page_no=page_no, limit=limit
             )
@@ -379,7 +376,7 @@ class ApplicationResourceCountByFormId(Resource):
     """Resource for getting applications count on formid."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_DESIGNS])
+    @auth.has_one_of_roles([DESIGNER_GROUP])
     @profiletime
     def get(form_id: str):
         """Get application count by formId."""
@@ -403,7 +400,7 @@ class ApplicationResourcesByIds(Resource):
     """Resource for application creation."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.doc(body=application_create_model)
     @API.response(201, "CREATED:- Successful request.", model=application_base_model)
@@ -445,7 +442,7 @@ class ApplicationResourceByApplicationStatus(Resource):
     """Get application status list."""
 
     @staticmethod
-    @auth.has_one_of_roles([VIEW_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.response(200, "OK:- Successful request.", model=application_status_list_model)
     @API.response(
@@ -470,7 +467,7 @@ class ApplicationResubmitById(Resource):
     """Resource for resubmit application."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.doc(body=application_resubmit_model)
     @API.response(200, "OK:- Successful request.")

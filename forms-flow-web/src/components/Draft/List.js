@@ -1,6 +1,8 @@
  
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux"; 
+import { useDispatch, useSelector } from "react-redux";
+ 
+import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 import Loading from "../../containers/Loading";
  import { useTranslation } from "react-i18next"; 
 import { MULTITENANCY_ENABLED } from "../../constants/constants";
@@ -130,9 +132,9 @@ export const DraftList = React.memo(() => {
             {
             <div>
             {t("Are you sure to delete the draft")}
-            <span className="fw-bold"> {draftDelete.draftName.includes(' ') ? draftDelete.draftName : textTruncate(50,40,draftDelete.draftName)} </span>
+            <span style={{ fontWeight: "bold" }} > {draftDelete.draftName.includes(' ') ? draftDelete.draftName : textTruncate(50,40,draftDelete.draftName)} </span>
             {t("with ID")}
-            <span className="fw-bold"> {draftDelete.draftId}</span> ?
+            <span style={{fontWeight: "bold"}}> {draftDelete.draftId}</span> ?
             </div>
             }
 

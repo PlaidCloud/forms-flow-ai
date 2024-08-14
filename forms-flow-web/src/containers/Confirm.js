@@ -15,7 +15,7 @@ const Confirm = React.memo((props) => {
   
   return (
     <>
-      <Modal data-testid="delete-modal" show={modalOpen}>
+      <Modal show={modalOpen}>
         <Modal.Header>
           <Modal.Title>{t("Delete Confirmation")}</Modal.Title>
         </Modal.Header>
@@ -24,11 +24,10 @@ const Confirm = React.memo((props) => {
           <button
             type="button"
             className="btn btn-link text-dark"
-            data-testid="delete-cancel-button"
             onClick={onNo}>
             {noText}</button>
 
-          <button className="btn btn-danger" onClick={onYes} data-testid="delete-confirm-button">
+          <button className="btn btn-danger" onClick={onYes}>
             {yesText}
           </button>
 

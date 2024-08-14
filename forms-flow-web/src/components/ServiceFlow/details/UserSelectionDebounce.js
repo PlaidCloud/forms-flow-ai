@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState,useEffect, useRef } from "react";
 import AsyncSelect from "react-select/async";
 import { useDispatch } from "react-redux";
 import { Row, Col } from "react-bootstrap";
@@ -10,7 +10,9 @@ import {
   SearchByLastName,
   UserSearchFilterTypes,
 } from "../constants/userSearchFilterTypes";
+import DropdownButton from "react-bootstrap/DropdownButton";
 import Dropdown from "react-bootstrap/Dropdown";
+import Form from "react-bootstrap/Form";
 
 const UserSelectionDebounce = React.memo((props) => {
   const { onClose, currentUser, onChangeClaim } = props;
@@ -29,7 +31,7 @@ const UserSelectionDebounce = React.memo((props) => {
     // outside click
     onClose();
   };
-
+  
   useEffect(() => {
     // add when mounted
     document.addEventListener("mousedown", handleClick);
@@ -96,7 +98,8 @@ const UserSelectionDebounce = React.memo((props) => {
     } else if (context === "menu") {
       return (
         <div
-          className="d-flex flex-column p-2 click-element"
+          className="p-2 click-element"
+          style={{ display: "flex", flexDirection: "column" }}
         >
           <div>{id}</div>
           <div>{formatNameLabel(firstName, lastName, email)}</div>
@@ -107,8 +110,8 @@ const UserSelectionDebounce = React.memo((props) => {
 
   return (
     <>
-      <Row ref={userSelectionRef} data-testid="task-user-selection-row">
-        <Col sm={10} className="no-padding-left pe-1">
+      <Row ref={userSelectionRef}>
+        <Col sm={10} className="no-padding-left pr-1">
           <AsyncSelect
             cacheOptions
             theme={customThemeFn}
@@ -121,46 +124,37 @@ const UserSelectionDebounce = React.memo((props) => {
             formatOptionLabel={formatOptionLabel}
             onMenuClose={onClose}
             value={selectedValue}
-            data-testid="task-async-user-select"
           />
         </Col>
         <Col sm={2} className="p-0 no-padding-left">
-          <Dropdown>
-            <Dropdown.Toggle
-              variant="secondary"
-              id="dropdown-basic"
-              data-testid="assignee-search-filter-dropdown-toggle"
-            >
-              <i className="fa fa-filter" />
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="searchtype-dropdown">
-              {UserSearchFilterTypes.map((UserSearchFilterType, idx) => (
-                <div
+          <DropdownButton
+            id="dropdown-basic-button"
+            title={<i className="fa fa-filter" />}
+            size="sm"
+            variant="secondary"
+          >
+            {UserSearchFilterTypes.map((UserSearchFilterType, idx) => {
+              return (
+                <Dropdown.Item
                   key={idx}
-                  className="mb-2 mx-2"
-                  data-testid={`assignee-search-filter-option-${idx}`}
+                  className="click-element"
+                  onClick={() => setSearchTypeOption(UserSearchFilterType)}
                 >
-                  <label className="form-check-label fw-normal">
-                    <input
-                      className="form-check-input me-2"
-                      type="radio"
-                      id={UserSearchFilterType.searchType}
-                      name="searchType"
-                      value={UserSearchFilterType.searchType}
-                      onChange={() => setSearchTypeOption(UserSearchFilterType)}
-                      checked={
-                        searchTypeOption.searchType ===
-                        UserSearchFilterType.searchType
-                      }
-                      data-testid={`assignee-filter-option-${UserSearchFilterType.searchType}`}
-                    />
-                    {UserSearchFilterType.title}
-                  </label>
-                  <br />
-                </div>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
+                  <Form.Check
+                    type="radio"
+                    id={UserSearchFilterType.searchType}
+                    key={UserSearchFilterType.searchType}
+                    label={UserSearchFilterType.title}
+                    value={UserSearchFilterType.searchType}
+                    checked={
+                      searchTypeOption.searchType ===
+                      UserSearchFilterType.searchType
+                    }
+                  />
+                </Dropdown.Item>
+              );
+            })}
+          </DropdownButton>
         </Col>
       </Row>
     </>

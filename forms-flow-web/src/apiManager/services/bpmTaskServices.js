@@ -18,11 +18,11 @@ import {
   bpmActionError,
   setBPMTaskList,
   setVisibleAttributes,
-  setDefaultFilter,
 } from "../../actions/bpmTaskActions";
 import { replaceUrl } from "../../helper/helper";
 import axios from "axios";
-import { taskDetailVariableDataFormatter } from "./formatterService"; 
+import { taskDetailVariableDataFormatter } from "./formatterService";
+import { REVIEWER_GROUP } from "../../constants/userContants";
 import { MAX_RESULTS } from "../../components/ServiceFlow/constants/taskConstants";
 
 export const fetchServiceTaskList = (reqData, taskIdToRemove, firstResult, maxResults, ...rest) => {
@@ -120,7 +120,7 @@ export const fetchProcessDefinitionList = (...rest) => {
 export const fetchUserList = (...rest) => {
   const done = rest.length ? rest[0] : () => {};
   /*TODO search with query /user?lastNameLike=%${lastName}%&memberOfGroup=${group}*/
-  const getReviewerUserListApi = `${API.GET_API_USER_LIST}?permission=manage_tasks`;
+  const getReviewerUserListApi = `${API.GET_API_USER_LIST}?memberOfGroup=${REVIEWER_GROUP}`;
   return (dispatch) => {
     RequestService.httpGETRequest(
       getReviewerUserListApi,
@@ -149,7 +149,7 @@ export const fetchUserList = (...rest) => {
 
 export const fetchUserListWithSearch = ({ searchType, query }, ...rest) => {
   const done = rest.length ? rest[0] : () => {};
-  const paramData = { permission: "manage_tasks" };
+  const paramData = { memberOfGroup: REVIEWER_GROUP };
   /*TODO search with query /user?lastNameLike=%${lastName}%&memberOfGroup=${group}*/
   //let getReviewerUserListApi = `${API.GET_API_USER_LIST}?memberOfGroup=${REVIEWER_GROUP}`;
   if (searchType && query) {
@@ -194,8 +194,7 @@ export const fetchFilterList = (...rest) => {
     )
       .then((res) => {
         if (res.data) {
-          dispatch(setDefaultFilter(res.data.defaultFilter));
-          dispatch(setBPMFilterList(res.data.filters));
+          dispatch(setBPMFilterList(res.data));
           //dispatch(setBPMLoader(false));
           done(null, res.data);
         } else {

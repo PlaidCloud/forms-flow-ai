@@ -63,6 +63,6 @@ def migrate_filters(tenant_key):
             "taskTitle": True,
             "createdDate": True,
             "groups": True,
-            "followUp": True,
+            "followupDate": True,
         }
         filter_obj.save()

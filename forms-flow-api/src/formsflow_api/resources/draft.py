@@ -1,11 +1,9 @@
 """API endpoints for draft resource."""
-
 from http import HTTPStatus
 
 from flask import request
 from flask_restx import Namespace, Resource, fields
 from formsflow_api_utils.utils import (
-    CREATE_SUBMISSIONS,
     NEW_APPLICATION_STATUS,
     auth,
     cors_preflight,
@@ -106,7 +104,7 @@ class DraftResource(Resource):
     """Resource for managing drafts."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.doc(
         params={
@@ -174,7 +172,7 @@ class DraftResource(Resource):
         return (result, HTTPStatus.OK)
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.doc(body=draft)
     @API.response(201, "CREATED:- Successful request.", model=draft_create_response)
@@ -204,7 +202,7 @@ class DraftResourceById(Resource):
     """Resource for managing draft by id."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.response(200, "OK:- Successful request.", model=draft_response_by_id)
     @API.response(
@@ -216,7 +214,7 @@ class DraftResourceById(Resource):
         return DraftService.get_draft(draft_id), HTTPStatus.OK
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.doc(body=draft)
     @API.response(
@@ -239,7 +237,7 @@ class DraftResourceById(Resource):
         )
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.response(200, "OK:- Successful request.", model=message)
     @API.response(
@@ -258,7 +256,7 @@ class DraftSubmissionResource(Resource):
     """Converts the given draft entry to actual submission."""
 
     @staticmethod
-    @auth.has_one_of_roles([CREATE_SUBMISSIONS])
+    @auth.require
     @profiletime
     @API.doc(body=submission)
     @API.response(200, "OK:- Successful request.", model=submission_response)

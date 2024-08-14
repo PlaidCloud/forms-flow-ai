@@ -1,5 +1,4 @@
-@import "../../variables.scss";
-
+@import "./../../assets/styles/themes.scss";
 .div-no-application {
     margin-top: 10%;
     margin-bottom: 10%;
@@ -24,37 +23,12 @@
     font-size: 14px;
 }
 
-.appFilter-list-view {
-    min-width: 500px;
-}
-
-.draftTable{
-    min-height: 400px;
-}
-
-.draft-disacard{
-    width: 8.5em;
-}
-
-.draft-details{
-    font-weight: 500px;
-}
-
-.draft-edit{
-    max-width: 900px;
-    height: 50vh
-}
-
-.application-details{
-    font-weight: 500px;
-}
-
 .filter-sort-bar {
     margin-bottom: 1rem;
     .filter-list-view {
         position: absolute;
         z-index: 1000;
-        background-color: $white;
+        background-color: white;
         top: 31px;;
         min-width: 180px;
     }

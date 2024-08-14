@@ -1,12 +1,13 @@
-import { Route, Switch, Redirect, useParams, useLocation } from "react-router-dom";
+import { Route, Switch, Redirect, useParams } from "react-router-dom";
 import React, { useEffect } from "react";
 import { Formio, getForm } from "react-formio";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  STAFF_REVIEWER,
+  CLIENT,
   BASE_ROUTE,
   MULTITENANCY_ENABLED,
 } from "../../../constants/constants";
-import  userRoles  from "../../../constants/permissions";
 import View from "./View";
 import Submission from "./Submission/index";
 import { checkIsObjectId } from "../../../apiManager/services/formatterService";
@@ -21,30 +22,21 @@ import {
 
 import Draft from "../../Draft";
 import Loading from "../../../containers/Loading";
-import { getClientList, getReviewerList } from "../../../apiManager/services/authorizationService";
+import { getClientList } from "../../../apiManager/services/authorizationService";
 import NotFound from "../../NotFound";
 import { setApiCallError } from "../../../actions/ErroHandling";
 
 const Item = React.memo(() => {
   const { formId } = useParams();
-  const location = useLocation(); // React Router's hook to get the current location
-  const pathname = location.pathname;
-    const tenantKey = useSelector((state) => state?.tenants?.tenantId);
+  const userRoles = useSelector((state) => state.user.roles || []);
+  const tenantKey = useSelector((state) => state?.tenants?.tenantId);
   const redirectUrl = MULTITENANCY_ENABLED ? `/tenant/${tenantKey}/` : "/";
   const formAuthVerifyLoading = useSelector((state)=>state.process?.formAuthVerifyLoading);
   const apiCallError = useSelector((state)=>state.errors?.apiCallError);
   const dispatch = useDispatch();
-  const { createSubmissions, viewSubmissions} = userRoles();
-
 
   const formAuthVerify = (formId,successCallBack)=>{
-      const isSubmissionRoute = pathname?.includes("/submission");
-      const authFunction = isSubmissionRoute
-      ? viewSubmissions
-        ? getReviewerList
-        : getClientList
-      : getClientList;
-       authFunction(formId).then(successCallBack).catch((err)=>{
+      getClientList(formId).then(successCallBack).catch((err)=>{
         const {response} = err;
         dispatch(setApiCallError({message:response?.data?.message || 
           response.statusText,status:response.status}));
@@ -121,7 +113,7 @@ const Item = React.memo(() => {
     <Route
       {...rest}
       render={(props) =>
-        createSubmissions || viewSubmissions ? (
+        userRoles.includes(STAFF_REVIEWER) || userRoles.includes(CLIENT) ? (
           <Component {...props} />
         ) : (
           <Redirect exact to={`${redirectUrl}`} />

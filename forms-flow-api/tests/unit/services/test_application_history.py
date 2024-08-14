@@ -1,5 +1,4 @@
 """Tests to assure the Application History Service."""
-
 from formsflow_api.services import ApplicationHistoryService
 
 application_history_service = ApplicationHistoryService()
@@ -14,7 +13,7 @@ def test_create_application_history(app, client, session):
     }
     payload["application_id"] = 1222  # sample value
     application_history = application_history_service.create_application_history(
-        data=payload, application_id=1222
+        data=payload
     )
     assert application_history.application_id == 1222
     assert application_history.application_status == "Pending"

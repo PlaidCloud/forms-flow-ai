@@ -1,5 +1,4 @@
 """Resource to call Keycloak Service API calls and filter responses."""
-
 from http import HTTPStatus
 
 from flask import request

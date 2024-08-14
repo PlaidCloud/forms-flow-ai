@@ -1,5 +1,4 @@
 import { Translation } from "react-i18next";
-import "./helper.scss";
 
 const replaceUrl = (URL, key, value) => {
   return URL.replace(key, value);
@@ -19,7 +18,7 @@ const addTenantkey = (value, tenantkey) => {
 const removeTenantKey = (value, tenantkey) => {
   const tenantKeyCheck = value.match(`${tenantkey}-`);
   if (
-    tenantKeyCheck &&  tenantKeyCheck.length &&
+    tenantKeyCheck &&
     tenantKeyCheck[0].toLowerCase() === `${tenantkey.toLowerCase()}-`
   ) {
     return value.replace(`${tenantkey.toLowerCase()}-`, "");
@@ -35,11 +34,21 @@ const textTruncate = (wordLength, targetLength, text) => {
 };
 
 const renderPage = (formStatus, processLoadError) => {
-  if (!processLoadError && (formStatus === "inactive")) {
+  console.log(processLoadError,formStatus);
+  if (!processLoadError && ((formStatus === "inactive") || !formStatus)) {
     return (
       <span>
         <div
-          className="container-md d-flex flex-column align-items-center justify-content-center"
+          className=""
+          style={{
+            maxWidth: "900px",
+            margin: "auto",
+            height: "50vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
           <h3>{<Translation>{(t) => t("Form not published")}</Translation>}</h3>
           <p>{<Translation>{(t) => t("You can't submit this form until it is published")}</Translation>}</p>
@@ -48,11 +57,4 @@ const renderPage = (formStatus, processLoadError) => {
     );
   } 
 };
-
-const filterSelectOptionByLabel = (option, searchText) => {
-  return option.data.label.toLowerCase().includes(searchText.toLowerCase());
-};
-
-
-export { replaceUrl, addTenantkey, removeTenantKey, textTruncate, renderPage, 
-  filterSelectOptionByLabel};
+export { replaceUrl, addTenantkey, removeTenantKey, textTruncate, renderPage };

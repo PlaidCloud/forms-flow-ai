@@ -25,7 +25,8 @@ const selectApplicationCreateAPI = (
     !isAuthenticated && !isDraftEnabled && !isDraftCreated;
   let usePublicDraftSubmit =
     !isAuthenticated && isDraftEnabled && isDraftCreated;
-    let selection = isAuthenticated ? applicationCreate : publicApplicationCreate;
+  let selection = null;
+
   if (useDraftSubmission) selection = draftSubmit;
   if (useApplicationCreate) selection = applicationCreate;
   if (usePublicApplicationCreate) selection = publicApplicationCreate;

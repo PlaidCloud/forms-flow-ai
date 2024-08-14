@@ -1,6 +1,5 @@
 """Initialize forms flow DataAnalysis-API and associated dependencies."""
 
-import logging
 import os
 import threading
 
@@ -12,10 +11,9 @@ from .models import db, migrate
 from .resources import data_analysis_api
 from .utils.auth import jwt
 from .utils.enumerator import Service
-from .utils.logging import setup_logging
-from .utils.file_log_handler import register_log_handlers
+from .utils.logging import log_info, setup_logging
 
-flask_logger = setup_logging(
+setup_logging(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.conf")
 )  # important to do this first
 
@@ -41,18 +39,6 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "production")):
     """Return a configured Flask App using the Factory method."""
     app = Flask(__name__)
     app.config.from_object(config.CONFIGURATION[run_mode])
-    app.logger = flask_logger
-    app.logger = logging.getLogger("app")
-    register_log_handlers(
-        app,
-        log_file="logs/forms-flow-data-analysis-api.log",
-        when=os.getenv("API_LOG_ROTATION_WHEN", "d"),
-        interval=int(os.getenv("API_LOG_ROTATION_INTERVAL", "1")),
-        backup_count=int(os.getenv("API_LOG_BACKUP_COUNT", "7")),
-        configure_log_file=app.config["CONFIGURE_LOGS"],
-    )
-    app.logger.propagate = False
-    app.logger.info("Welcome to formsflow-data-analysis server...!")
 
     if API_CONFIG.DATABASE_SUPPORT == Service.ENABLED.value:
         db.init_app(app)
@@ -69,9 +55,9 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "production")):
     register_shellcontext(app)
     preloading = threading.Thread(target=LoadModel.preload_models)
     preloading.start()
-    app.logger.info("Model is loading...")
+    log_info("Model is loading...")
     preloading.join()
-    app.logger.info("Model loading complete.")
+    log_info("Model loading complete.")
     app.classifier = LoadModel.classifier
     return app
 

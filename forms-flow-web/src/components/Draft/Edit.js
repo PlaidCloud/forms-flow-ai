@@ -11,12 +11,11 @@ import {
 import { push } from "connected-react-router";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation, Translation } from "react-i18next";
-import LoadingOverlay from "react-loading-overlay-ts";
+import LoadingOverlay from "react-loading-overlay";
 import { toast } from "react-toastify";
 import isEqual from "lodash/isEqual";
 
-import {RESOURCE_BUNDLES_DATA} from "../../resourceBundles/i18n";
-
+import { formio_resourceBundles } from "../../resourceBundles/formio_resourceBundles";
 import useInterval from "../../customHooks/useInterval";
 import { CUSTOM_EVENT_TYPE } from "../ServiceFlow/constants/customEventTypes";
 import selectApplicationCreateAPI from "../Form/Item/apiSelectHelper";
@@ -104,7 +103,7 @@ const View = React.memo((props) => {
   );
 
   
-  const saveDraft = (payload, exitType) => {
+  const saveDraft = (payload, exitType = exitType?.current) => {
     if (exitType === "SUBMIT" || processData?.status !== "active") return;
     let dataChanged = !isEqual(payload.data, lastUpdatedDraft.data);
     if (draftSubmission?.id) {
@@ -225,7 +224,7 @@ const View = React.memo((props) => {
     <div className=" overflow-y-auto">
       {
         <>
-          <span className="pe-2  me-2 d-flex justify-content-end align-items-center">
+          <span className="pr-2  mr-2 d-flex justify-content-end align-items-center">
             {poll && showNotification && (
               <SavingLoading
                 text={
@@ -247,15 +246,15 @@ const View = React.memo((props) => {
             onConfirm={props.onConfirm}
           ></SubmissionError>
           {isAuthenticated ? (
-            <Link data-testid="back-to-drafts-link" title={t("Back to Drafts")} to={`${redirectUrl}draft`} className="">
-              <i className="fa fa-chevron-left fa-lg me-2" />
+            <Link title={t("Back to Drafts")} to={`${redirectUrl}draft`} className="">
+              <i className="fa fa-chevron-left fa-lg mr-2" />
             </Link>
           ) : null}
 
           {form.title ? (
             <h3 className="">
               <span className="task-head-details">
-                <i className="fa-solid fa-file-lines me-2" aria-hidden="true" /> &nbsp;{" "}
+                <i className="fa-solid fa-file-lines mr-2" aria-hidden="true" /> &nbsp;{" "}
                 {t("Drafts")}/
               </span>{" "}
               {textTruncate(60,40,form.title)}
@@ -266,8 +265,8 @@ const View = React.memo((props) => {
         </div>
         {processData?.status === "active" ? (
           <button
-            data-testid="draft-discard"
-            className="btn btn-danger me-2"
+            className="btn btn-danger mr-2"
+            style={{ width: "8.5em" }}
             onClick={() => deleteDraft()}
           >
             {t("Discard Draft")}
@@ -290,11 +289,11 @@ const View = React.memo((props) => {
     <>
 
       {t("Are you sure to delete the draft")} 
-      <span className="fw-bold">&nbsp;
+      <span style={{ fontWeight: "bold" }}>&nbsp;
         {textTruncate(14, 12, draftDelete.draftName)}
       </span>&nbsp;
       {t("with ID")} 
-      <span className="fw-bold">&nbsp;
+      <span style={{ fontWeight: "bold" }}>&nbsp;
         {draftDelete.draftId}
       </span> ?
     </>
@@ -314,7 +313,7 @@ const View = React.memo((props) => {
                 options={{
                   ...options,
                   language: lang,
-                  i18n: RESOURCE_BUNDLES_DATA,
+                  i18n: formio_resourceBundles,
                 }}
                 hideComponents={hideComponents}
                 onChange={(formData) => {
@@ -332,7 +331,17 @@ const View = React.memo((props) => {
           ) : (
             <span>
               <div
-                className="container-md d-flex align-items-center justify-content-center draft-edit">
+                className=""
+                style={{
+                  maxWidth: "900px",
+                  margin: "auto",
+                  height: "50vh",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <h3>{t("Form not published")}</h3>
                 <p>{t("You can't submit this form until it is published")}</p>
               </div>
@@ -358,7 +367,7 @@ const doProcessActions = (submission, ownProps) => {
     const redirectUrl = MULTITENANCY_ENABLED ? `/tenant/${tenantKey}/` : `/`;
     dispatch(resetSubmissions("submission"));
     const origin = `${window.location.origin}${redirectUrl}`;
-    const data = getProcessReq(form, submission._id, origin, submission?.data);
+    const data = getProcessReq(form, submission._id, origin);
     let draft_id = state.draft.submission?.id;
     let isDraftCreated = draft_id ? true : false;
     const applicationCreateAPI = selectApplicationCreateAPI(
@@ -366,7 +375,6 @@ const doProcessActions = (submission, ownProps) => {
       isDraftCreated,
       DRAFT_ENABLED
     );
-   
     dispatch(
       applicationCreateAPI(data, draft_id ? draft_id : null, (err) => {
         dispatch(setFormSubmissionLoading(false));

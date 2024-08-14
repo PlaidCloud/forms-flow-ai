@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Dropdown, FormControl, InputGroup } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import Pagination from "react-js-pagination";
-import LoadingOverlay from "react-loading-overlay-ts";
+import LoadingOverlay from "react-loading-overlay";
 
 import {
   fetchAllDmnProcesses,
@@ -101,17 +101,16 @@ function DmnTable() {
         text={t("Loading...")}
         active={isLoading || countLoading}
       >
-        <div className="dmn-table">
+        <div style={{ minHeight: "400px" }}>
           <table className="table custom-table  table-responsive-sm mt-2">
             <thead>
               <tr>
-                <th scope="col">{t("DMN Name")}</th>
+                <th scope="col">{t("Workflow Name")}</th>
                 <th scope="col">{t("Key")}</th>
                 <th scope="col">{t("Type")}</th>
                 <th colSpan="2">
                 <InputGroup className="input-group">
-               <FormControl
-                className="bg-white"
+              <FormControl
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -119,26 +118,23 @@ function DmnTable() {
                 onKeyDown={(e) =>
                   e.keyCode == 13 ? handleSearchButtonClick() : ""
                 }
-                placeholder={t("Search by DMN name")}
-                title={t("Search by DMN name")}
-                data-testid="processes-search-dmn-input-box"
-                aria-label={t("Search by DMN name")}
-                />
+                placeholder={t("Search by workflow name")}
+                title={t("Search by workflow name")}
+                style={{ backgroundColor: "#ffff" }}
+              />
               {search && (
-                <InputGroup.Append data-testid="processes-search-dmn-clear-button" onClick={onClearSearch}>
-                  <InputGroup.Text className="h-100">
+                <InputGroup.Append onClick={onClearSearch}>
+                  <InputGroup.Text>
                     <i className="fa fa-times"></i>
                   </InputGroup.Text>
                 </InputGroup.Append>
               )}
-                    <InputGroup.Append
-                      className="cursor-pointer"
-                      data-testid="processes-search-dmn-click-button"
-                      onClick={handleSearchButtonClick}
-                      disabled={!search?.trim()}
-                    >
-                <InputGroup.Text 
-                className="h-100 bg-white">
+              <InputGroup.Append
+                onClick={handleSearchButtonClick}
+                disabled={!search?.trim()}
+                style={{ cursor: "pointer" }}
+              >
+                <InputGroup.Text style={{ backgroundColor: "#ffff" }}>
                   <i className="fa fa-search"></i>
                 </InputGroup.Text>
               </InputGroup.Append>
@@ -151,7 +147,8 @@ function DmnTable() {
                 <tr className="no-results-row">
                   <td
                     colSpan="4"
-                    className="text-center no-results"
+                    style={{ height: "300px" }}
+                    className="text-center"
                   >
                    { isLoading ? null : t("No Dmn Found")}
                   </td>
@@ -165,12 +162,9 @@ function DmnTable() {
                     <td>{processItem.key}</td>
                     <td>{t("DMN")}</td>
                     <td className="d-flex justify-content-end w-100">
-                      <button
-                        data-testid={`processes-edit-dmn-${processItem.key}`}
-                        className="btn btn-link"
-                        onClick={() => { gotoEdit(processItem); }}> 
-                       <i className="fas fa-edit me-2"/>
-                        {t("Edit DMN")}</button>
+                    <button className="btn btn-link" onClick={()=>{gotoEdit(processItem);}}> 
+                       <i className="fas fa-edit mr-2"/>
+                        {t("Edit Workflow")}</button>
                     </td>
                   </tr>
                 ))}
@@ -182,9 +176,9 @@ function DmnTable() {
         {dmn.length ? (
           <div className="d-flex justify-content-between align-items-center  flex-column flex-md-row">
             <div className="d-flex align-items-center">
-              <span className="me-2"> {t("Rows per page")}</span>
-              <Dropdown data-testid="processes-dmn-pagination-dropdown">
-                <Dropdown.Toggle data-testid="processes--dmn-pagination-dropdown-limit" variant="light" id="dropdown-basic">
+              <span className="mr-2"> {t("Rows per page")}</span>
+              <Dropdown>
+                <Dropdown.Toggle variant="light" id="dropdown-basic">
                   {limit}
                 </Dropdown.Toggle>
 
@@ -196,14 +190,13 @@ function DmnTable() {
                       onClick={() => {
                         onLimitChange(option.value);
                       }}
-                      data-testid={`processes-dmn-pagination-dropdown-limit-${index}`}
                     >
                       {option.text}
                     </Dropdown.Item>
                   ))}
                 </Dropdown.Menu>
               </Dropdown>
-              <span className="ms-2">
+              <span className="ml-2">
                 {t("Showing")} {(limit * activePage) - (limit - 1)} {t("to")}
                 &nbsp;
                 {Math.min(limit * activePage, totalProcess)} {t("of")}&nbsp;
@@ -222,10 +215,6 @@ function DmnTable() {
                   itemClass="page-item"
                   linkClass="page-link"
                   onChange={handlePageChange}
-                  firstPageText={<span aria-label="Go to first page" title="Go to first page">«</span>}
-                  lastPageText={<span aria-label="Go to last page" title="Go to last page">»</span>}
-                  prevPageText={<span aria-label="Go to previous page" title="Go to previous page">⟨</span>}
-                  nextPageText={<span aria-label="Go to next page" title="Go to next page">⟩</span>}
                 />
               )}
             </div>

@@ -3,7 +3,8 @@ window["_env_"] = {
   MF_FORMSFLOW_WEB_URL: "${MF_FORMSFLOW_WEB_URL}",
   MF_FORMSFLOW_NAV_URL: "${MF_FORMSFLOW_NAV_URL}",
   MF_FORMSFLOW_SERVICE_URL: "${MF_FORMSFLOW_SERVICE_URL}",
-  MF_FORMSFLOW_ADMIN_URL: "${MF_FORMSFLOW_ADMIN_URL}", */
+  MF_FORMSFLOW_ADMIN_URL: "${MF_FORMSFLOW_ADMIN_URL}",
+  MF_FORMSFLOW_THEME_URL: "${MF_FORMSFLOW_THEME_URL}",*/
   // To define project level configuration  possible values development,test, production
   NODE_ENV: "${NODE_ENV}",
   //Environment Variables for forms-flow-web
@@ -19,11 +20,6 @@ window["_env_"] = {
   REACT_APP_KEYCLOAK_URL_REALM: "${REACT_APP_KEYCLOAK_URL_REALM}",
   // Keycloak URL
   REACT_APP_KEYCLOAK_URL: "${REACT_APP_KEYCLOAK_URL}",
-  // default language
-  REACT_APP_LANGUAGE: "${REACT_APP_LANGUAGE}",
-
-
-  REACT_APP_KEYCLOAK_URL_HTTP_RELATIVE_PATH: "${REACT_APP_KEYCLOAK_URL_HTTP_RELATIVE_PATH}",
 
   ////Environment Variables for forms-flow-bpm////
 

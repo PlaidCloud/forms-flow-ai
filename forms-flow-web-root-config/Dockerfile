@@ -1,5 +1,5 @@
 # Base image
-FROM node:16.18.0-alpine as build-stage
+FROM node:14.17.6-alpine as build-stage
 
 # Set working directory
 WORKDIR /forms-flow-web-root-config/app
@@ -10,13 +10,14 @@ ARG MF_FORMSFLOW_WEB_URL
 ARG MF_FORMSFLOW_NAV_URL
 ARG MF_FORMSFLOW_SERVICE_URL
 ARG MF_FORMSFLOW_ADMIN_URL
-
+ARG MF_FORMSFLOW_THEME_URL
 
 # Set environment variables
 ENV MF_FORMSFLOW_WEB_URL ${MF_FORMSFLOW_WEB_URL}
 ENV MF_FORMSFLOW_NAV_URL ${MF_FORMSFLOW_NAV_URL}
 ENV MF_FORMSFLOW_SERVICE_URL ${MF_FORMSFLOW_SERVICE_URL}
 ENV MF_FORMSFLOW_ADMIN_URL ${MF_FORMSFLOW_ADMIN_URL}
+ENV MF_FORMSFLOW_THEME_URL ${MF_FORMSFLOW_THEME_URL}
 ENV NODE_ENV ${NODE_ENV}
 
 # Add `/app/node_modules/.bin` to $PATH
@@ -30,7 +31,7 @@ RUN apk update && apk upgrade && \
 COPY package-lock.json /forms-flow-web-root-config/app/package-lock.json
 COPY package.json /forms-flow-web-root-config/app/package.json
 COPY env.sh /forms-flow-web-root-config/app/env.sh
-RUN npm ci --omit=dev
+RUN npm ci --only=production
 
 # Copy source code
 COPY . /forms-flow-web-root-config/app/
@@ -44,7 +45,7 @@ RUN if [ $NODE_ENV == "development" ]; then \
 
 
 # Production stage
-FROM nginx:1.25.4-alpine as production-stage
+FROM nginx:1.25.3-alpine as production-stage
 
 # Set label for image
 LABEL Name="formsflow"

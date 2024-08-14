@@ -1,11 +1,12 @@
 import React from "react";
+import "./footer.scss";
 import { version } from "../../../package.json";
 import { Translation } from "react-i18next";
 
 const version_org = version;
 const Footer = React.memo(() => {
   return (
-    <div className="ps-md-3 pb-3">
+    <div className="pl-md-3 pb-3">
       <hr />
       <div className="d-flex justify-content-end pb-2">
         <div className="footer-text">
