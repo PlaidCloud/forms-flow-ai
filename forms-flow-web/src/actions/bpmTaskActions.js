@@ -101,6 +101,13 @@ export const setBPMFilterList = (data) => (dispatch) => {
   });
 };
 
+export const setDefaultFilter = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.DEFAULT_FILTER,
+    payload: data,
+  });
+};
+
 export const setSelectedBPMFilter = (data) => (dispatch) => {
   dispatch({
     type: ACTION_CONSTANTS.BPM_SELECTED_FILTER,
@@ -211,6 +218,13 @@ export const setBPMFiltersAndCount = (data) => (dispatch) => {
 export const setVisibleAttributes = (data) => (dispatch) => {
   dispatch({
     type: ACTION_CONSTANTS.BPM_VISSIBLE_ATTRIBUTES, 
+    payload: data,
+  });
+};
+
+export const setIsAllTaskVariableExpand = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.IS_ALL_TASKVARIABLES_EXPAND,
     payload: data,
   });
 };

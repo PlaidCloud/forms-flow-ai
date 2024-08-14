@@ -9,11 +9,14 @@ from flask import after_this_request, current_app
 from flask_restx import Namespace, Resource, fields
 from formsflow_api_utils.exceptions import BusinessException, ExternalError
 from formsflow_api_utils.utils import (
-    CLIENT_GROUP,
-    DESIGNER_GROUP,
-    REVIEWER_GROUP,
+    CREATE_DESIGNS,
+    CREATE_SUBMISSIONS,
+    MANAGE_TASKS,
+    VIEW_DESIGNS,
+    VIEW_SUBMISSIONS,
+    VIEW_TASKS,
+    Cache,
     auth,
-    cache,
     cors_preflight,
     get_role_ids_from_user_groups,
     profiletime,
@@ -86,11 +89,22 @@ class FormioResource(Resource):
 
         def filter_user_based_role_ids(item):
             filter_list = []
-            if DESIGNER_GROUP in user.roles:
+            if any(
+                permission in user.roles
+                for permission in [CREATE_DESIGNS, VIEW_DESIGNS]
+            ):
                 filter_list.append(FormioRoles.DESIGNER.name)
-            if REVIEWER_GROUP in user.roles:
+            if any(
+                permission in user_role for permission in [MANAGE_TASKS, VIEW_TASKS]
+            ):
                 filter_list.append(FormioRoles.REVIEWER.name)
-            if CLIENT_GROUP in user.roles:
+            if any(
+                permission in user_role
+                for permission in [
+                    CREATE_SUBMISSIONS,
+                    VIEW_SUBMISSIONS,
+                ]
+            ):
                 filter_list.append(FormioRoles.CLIENT.name)
             return item["type"] in filter_list
 
@@ -117,10 +131,15 @@ class FormioResource(Resource):
                 user.email or f"{user.user_name}@formsflow.ai"
             )  # Email is not mandatory in keycloak
             project_id: str = current_app.config.get("FORMIO_PROJECT_URL")
+            groups = user.groups
             payload: Dict[str, any] = {
                 "external": True,
                 "form": {"_id": _resource_id},
-                "user": {"_id": unique_user_id, "roles": _role_ids},
+                "user": {
+                    "_id": unique_user_id,
+                    "roles": _role_ids,
+                    "customRoles": groups,
+                },
             }
             if project_id:
                 payload["project"] = {"_id": project_id}
@@ -130,20 +149,23 @@ class FormioResource(Resource):
                 algorithm="HS256",
             )
             response.headers["Access-Control-Expose-Headers"] = "x-jwt-token"
-            if DESIGNER_GROUP not in user.roles:
+            if all(
+                permission not in user_role
+                for permission in [CREATE_DESIGNS, VIEW_DESIGNS]
+            ):
                 response.set_data(json.dumps({"form": []}))
                 return response
             return response
 
         user_role = user.roles
-        role_ids = cache.get("formio_role_ids")
-        formio_user_resource_id = cache.get("user_resource_id")
+        role_ids = Cache.get("formio_role_ids")
+        formio_user_resource_id = Cache.get("user_resource_id")
         if not role_ids:
             collect_role_ids(current_app)
-            role_ids = cache.get("formio_role_ids")
+            role_ids = Cache.get("formio_role_ids")
         if not formio_user_resource_id:
             collect_user_resource_ids(current_app)
-            formio_user_resource_id = cache.get("user_resource_id")
+            formio_user_resource_id = Cache.get("user_resource_id")
 
         roles = get_role_ids_from_user_groups(role_ids, user_role)
         if roles is not None:

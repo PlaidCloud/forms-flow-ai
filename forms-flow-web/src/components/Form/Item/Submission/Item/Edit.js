@@ -9,7 +9,7 @@ import {
   Errors,
 } from "react-formio";
 import { push } from "connected-react-router";
-import { formio_resourceBundles } from "../../../../../resourceBundles/formio_resourceBundles";
+import { RESOURCE_BUNDLES_DATA } from "../../../../../resourceBundles/i18n";
 import Loading from "../../../../../containers/Loading";
 
 import {
@@ -17,9 +17,7 @@ import {
   setFormSubmissionLoading,
 } from "../../../../../actions/formActions";
 import SubmissionError from "../../../../../containers/SubmissionError";
-import { getUserRolePermission } from "../../../../../helper/user";
 import {
-  CLIENT,
   CUSTOM_SUBMISSION_URL,
   CUSTOM_SUBMISSION_ENABLE,
   MULTITENANCY_ENABLED,
@@ -31,7 +29,7 @@ import {
 } from "../../../../../constants/applicationConstants";
 import { useParams } from "react-router-dom";
 import { updateApplicationEvent } from "../../../../../apiManager/services/applicationServices";
-import LoadingOverlay from "react-loading-overlay";
+import LoadingOverlay from "react-loading-overlay-ts";
 import { toast } from "react-toastify";
 import { Translation, useTranslation } from "react-i18next";
 import { updateCustomSubmission } from "../../../../../apiManager/services/FormServices";
@@ -77,7 +75,7 @@ const Edit = React.memo((props) => {
     // In the new approach, we will use the "isResubmit" key
     if (applicationStatus && !onFormSubmit) {
       if (
-        getUserRolePermission(userRoles, CLIENT) &&
+        userRoles.includes('create_submissions') &&
         !CLIENT_EDIT_STATUS.includes(applicationStatus) &&
         !applicationDetail.isResubmit
       ) {
@@ -113,7 +111,7 @@ const Edit = React.memo((props) => {
           message={props.submissionError.message}
           onConfirm={props.onConfirm}
         ></SubmissionError>
-        <h3 className="task-head text-truncate" style={{ height:"45px" }}>{form.title}</h3>
+        <h3 className="task-head text-truncate form-title">{form.title}</h3>
       </div>
       <Errors errors={errors} />
       <LoadingOverlay
@@ -122,7 +120,7 @@ const Edit = React.memo((props) => {
         text={t("Loading...")}
         className="col-12"
       >
-        <div className="ml-4 mr-4">
+        <div className="ms-4 me-4">
           <Form
             form={form}
             submission={isFormSubmissionLoading ? updatedSubmissionData : updatedSubmission}
@@ -143,7 +141,7 @@ const Edit = React.memo((props) => {
             }
             options={{
               ...options,
-              i18n: formio_resourceBundles,
+              i18n: RESOURCE_BUNDLES_DATA,
               language: lang,
             }}
             onCustomEvent={onCustomEvent}

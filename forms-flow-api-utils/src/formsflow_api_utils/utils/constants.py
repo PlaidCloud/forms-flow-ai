@@ -1,6 +1,5 @@
 """All constants for project."""
 import os
-
 from dotenv import find_dotenv, load_dotenv
 
 # this will load all the envars from a .env file located in the project root (api)
@@ -12,6 +11,7 @@ CORS_ORIGINS = []
 if FORMSFLOW_API_CORS_ORIGINS != "*":
     CORS_ORIGINS = FORMSFLOW_API_CORS_ORIGINS.split(",")
 ADMIN_GROUP = "formsflow-admin"
+CAMUNDA_ADMIN = "camunda-admin"
 DESIGNER_GROUP = "formsflow-designer"
 REVIEWER_GROUP = "formsflow-reviewer"
 CLIENT_GROUP = "formsflow-client"
@@ -39,6 +39,9 @@ FILTER_MAPS = {
     "is_bundle": {"field": "is_bundle", "operator": "eq"},
     "title":{"field": "title", "operator": "ilike"},
     "category":{"field": "category", "operator": "ilike"},
+    "process_name": {"field": "name", "operator": "ilike"},
+    "process_status": {"field": "status", "operator": "eq"},
+    "process_type": {"field": "process_type", "operator": "eq"},
 }
 
 DEFAULT_PROCESS_KEY = "Defaultflow"

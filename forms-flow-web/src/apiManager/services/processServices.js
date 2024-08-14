@@ -65,27 +65,32 @@ export const getProcessStatusList = (processId, taskId) => {
 export const fetchAllBpmProcesses = (  {tenant_key = null,
   firstResult,
   maxResults,
-  searchKey,} = {},
+  searchKey,
+  excludeInternal = false,} = {},
   ...rest) => {
   const done = rest.length ? rest[0] : () => {};
 
   let url =
     API.GET_BPM_PROCESS_LIST +
     "?latestVersion=true" +
-    "&excludeInternal=true" +
     "&includeProcessDefinitionsWithoutTenantId=true" +
     "&sortBy=tenantId" +
     "&sortOrder=asc";
 
+  if (excludeInternal) {
+      url = url + "&excludeInternal=true";
+  }
   if (tenant_key) {
     url = url + "&tenantIdIn=" + tenant_key;
   }
+ 
   if (firstResult) {
     url = url + "&firstResult=" + firstResult;
   }
   if (maxResults) {
     url = url + "&maxResults=" + maxResults;
   }
+  
   if (searchKey) {
     url = url + `&nameLike=%25${searchKey}%25`;
   }
@@ -127,7 +132,7 @@ export const fetchAllBpmProcessesCount = (tenant_key,searchKey,) => {
     url = url + "&tenantIdIn=" + tenant_key;
   }
   if(searchKey){
-    url = url + `&nameLike=%${searchKey}%`;
+    url = url + `&nameLike=%25${searchKey}%25`;
   }
 
   return RequestService.httpGETRequest(
@@ -233,6 +238,12 @@ export const getFormProcesses = (formId, ...rest) => {
         dispatch(setFormProcessLoadError(true));
       });
   };
+};
+
+// fetching task variables
+export const fetchTaskVariables = (formId) =>{
+  let url =  `${API.FORM_PROCESSES}/${formId}`;
+  return  RequestService.httpGETRequest(url);
 };
 
 export const fetchAllDmnProcessesCount = (tenant_key = null, searchKey) => {
