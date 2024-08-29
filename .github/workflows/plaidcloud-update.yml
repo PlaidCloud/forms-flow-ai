@@ -1,0 +1,57 @@
+name: Update unmodified images
+
+on:
+  workflow_dispatch:
+  push:
+    branches: 
+      - plaidcloud-beta-*
+    paths:
+      - "VERSION"
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./forms-flow-api
+
+jobs:
+  build-beta:
+    name: Beta Deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Create tag
+        id: docker_tag
+        run: |
+          VER=$(cat VERSION)
+          echo "VERSION=$VER"-${{ github.run_number }}" >> $GITHUB_ENV
+      - name: Verify tag
+        run: echo ${{ steps.docker_tag.outputs.version }}
+
+      - name: Checkout GitOps Repository
+        uses: actions/checkout@v4
+        with:
+          repository: PlaidCloud/plaid-tenant-infrastructure
+          ref: beta
+          fetch-depth: '1'
+          path: infrastructure
+          token: ${{ secrets.GITOPS_REPO_ACCESS }}
+
+      
+      - name: Update Control Plane & Tenant Image
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          repository: PlaidCloud/plaid-tenant-infrastructure
+          branch: beta
+          message: 'Update Plaid Image to ${{ steps.docker_tag.outputs.version }}'
+          token: ${{ secrets.GITOPS_REPO_ACCESS }}
+          workDir: infrastructure
+          changes: |
+            {
+              "tenants/charts/forms-flow/values.yaml": {
+                "admin.image.tag": "{{ steps.docker_tag.outputs.version }}",
+                "dataAnalysis.image.tag": "{{ steps.docker_tag.outputs.version }}",
+                "docs.image.tag": "{{ steps.docker_tag.outputs.version }}",
+                "forms.image.tag": "{{ steps.docker_tag.outputs.version }}",
+                "web.image.tag": "{{ steps.docker_tag.outputs.version }}"
+              }
+            }
