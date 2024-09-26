@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum, unique
+from typing import List
 
 from flask_sqlalchemy.query import Query
 from formsflow_api_utils.utils import (
@@ -10,6 +11,7 @@ from formsflow_api_utils.utils import (
     validate_sort_order_and_order_by,
 )
 from formsflow_api_utils.utils.user_context import UserContext, user_context
+from sqlalchemy import LargeBinary, desc
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.sql.expression import text
 
@@ -43,12 +45,14 @@ class Process(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model):
     process_type = db.Column(
         ENUM(ProcessType, name="ProcessType"), nullable=False, index=True
     )
-    process_data = db.Column(db.String, nullable=False)
+    process_data = db.Column(LargeBinary, nullable=False)
     status = db.Column(ENUM(ProcessStatus, name="ProcessStatus"), nullable=False)
     form_process_mapper_id = db.Column(
         db.Integer, db.ForeignKey("form_process_mapper.id"), nullable=True
     )
     tenant = db.Column(db.String(100), nullable=True)
+    major_version = db.Column(db.Integer, nullable=False, index=True)
+    minor_version = db.Column(db.Integer, nullable=False, index=True)
 
     @classmethod
     @user_context
@@ -72,6 +76,8 @@ class Process(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model):
                 "modified_by",
                 "form_process_mapper_id",
                 "modified",
+                "major_version",
+                "minor_version",
             ],
             process_info,
         )
@@ -116,6 +122,32 @@ class Process(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model):
         sort_by, sort_order = validate_sort_order_and_order_by(sort_by, sort_order)
         if sort_by and sort_order:
             query = query.order_by(text(f"process.{sort_by} {sort_order}"))
+        total_count = query.count()
+        limit = total_count if limit is None else limit
+        query = query.paginate(page=page_no, per_page=limit, error_out=False)
+        return query.items, total_count
+
+    @classmethod
+    def get_latest_version(cls, process_name):
+        """Get latest version of process."""
+        query = (
+            cls.auth_query(cls.query.filter(cls.name == process_name))
+            .order_by(cls.major_version.desc(), cls.minor_version.desc())
+            .first()
+        )
+
+        return query
+
+    @classmethod
+    def fetch_histories_by_process_name(
+        cls, process_name: str, page_no=None, limit=None
+    ) -> List[Process]:
+        """Fetch all versions (histories) of a process by process_name."""
+        assert process_name is not None
+
+        query = cls.auth_query(cls.query.filter(cls.name == process_name)).order_by(
+            desc(cls.major_version), desc(cls.minor_version)
+        )
         total_count = query.count()
         limit = total_count if limit is None else limit
         query = query.paginate(page=page_no, per_page=limit, error_out=False)

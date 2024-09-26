@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Form, Errors, Formio } from "react-formio";
+import { Form, Errors, Formio } from "@aot-technologies/formio-react";
 import { push } from "connected-react-router";
 import Loading from "../../../containers/Loading";
 import { Translation } from "react-i18next";
@@ -51,7 +51,7 @@ const Preview = ({handleNext, hideComponents, activeStep}) => {
   };
  
   useEffect(()=>{
-    if(formProcessList?.parentFormId){
+    if(createDesigns && formProcessList?.parentFormId){
       getFormHistory(formProcessList?.parentFormId).then((res) => {
         dispatch(setFormHistories(res.data));
       })

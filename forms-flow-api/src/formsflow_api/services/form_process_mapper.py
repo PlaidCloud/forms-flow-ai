@@ -1,5 +1,6 @@
 """This exposes form process mapper service."""
 
+import json
 import xml.etree.ElementTree as ET
 from typing import List, Set, Tuple
 
@@ -9,28 +10,32 @@ from formsflow_api_utils.services.external import FormioService
 from formsflow_api_utils.utils.enums import FormProcessMapperStatus
 from formsflow_api_utils.utils.user_context import UserContext, user_context
 
-from formsflow_api.constants import BusinessErrorCode
+from formsflow_api.constants import BusinessErrorCode, default_flow_xml_data
 from formsflow_api.models import (
     Authorization,
     AuthType,
     Draft,
+    FormHistory,
     FormProcessMapper,
+    Process,
 )
 from formsflow_api.schemas import FormProcessMapperSchema
 from formsflow_api.services.external.bpm import BPMService
 
+from .form_history_logs import FormHistoryService
 
-class FormProcessMapperService:
+
+class FormProcessMapperService:  # pylint: disable=too-many-public-methods
     """This class manages form process mapper service."""
 
     @staticmethod
     @user_context
-    def get_all_forms(
+    def get_all_forms(  # pylint: disable=too-many-positional-arguments
         page_number: int,
         limit: int,
-        form_name: str,
-        sort_by: str,
-        sort_order: str,
+        search: list,
+        sort_by: list,
+        sort_order: list,
         form_type: str,
         is_active,
         is_designer: bool,
@@ -67,36 +72,12 @@ class FormProcessMapperService:
             mappers, get_all_mappers_count = list_form_mappers(
                 page_number=page_number,
                 limit=limit,
-                form_name=form_name,
+                search=search,
                 sort_by=sort_by,
                 sort_order=sort_order,
                 form_ids=authorized_form_ids,
                 **designer_filters if is_designer else {},
             )
-        mapper_schema = FormProcessMapperSchema()
-        return (
-            mapper_schema.dump(mappers, many=True),
-            get_all_mappers_count,
-        )
-
-    @staticmethod
-    def get_all_mappers(
-        page_number: int,
-        limit: int,
-        form_name: str,
-        sort_by: str,
-        sort_order: str,
-        process_key: list = None,
-    ):  # pylint: disable=too-many-arguments
-        """Get all form process mappers."""
-        mappers, get_all_mappers_count = FormProcessMapper.find_all_active(
-            page_number=page_number,
-            limit=limit,
-            form_name=form_name,
-            sort_by=sort_by,
-            sort_order=sort_order,
-            process_key=process_key,
-        )
         mapper_schema = FormProcessMapperSchema()
         return (
             mapper_schema.dump(mappers, many=True),
@@ -282,13 +263,40 @@ class FormProcessMapperService:
             raise BusinessException(BusinessErrorCode.PERMISSION_DENIED)
         return
 
-    def _get_form(  # pylint: disable=too-many-arguments
+    @staticmethod
+    def mapper_create(mapper_json):
+        """Service to handle mapper create."""
+        mapper_json["taskVariable"] = json.dumps(mapper_json.get("taskVariable") or [])
+        mapper_schema = FormProcessMapperSchema()
+        dict_data = mapper_schema.load(mapper_json)
+        mapper = FormProcessMapperService.create_mapper(dict_data)
+
+        FormProcessMapperService.unpublish_previous_mapper(dict_data)
+
+        response = mapper_schema.dump(mapper)
+        response["taskVariable"] = json.loads(response["taskVariable"])
+
+        FormHistoryService.create_form_logs_without_clone(data=mapper_json)
+        return response
+
+    @staticmethod
+    def form_design_update(data, form_id):
+        """Service to handle form design update."""
+        FormProcessMapperService.check_tenant_authorization_by_formid(form_id=form_id)
+        formio_service = FormioService()
+        form_io_token = formio_service.get_formio_access_token()
+        response = formio_service.update_form(form_id, data, form_io_token)
+        FormHistoryService.create_form_log_with_clone(data=data)
+        return response
+
+    def _get_form(  # pylint: disable=too-many-arguments, too-many-positional-arguments
         self,
         title_or_path: str,
         scope_type: str,
         form_id: str = None,
         description: str = None,
         tenant_key: str = None,
+        anonymous: bool = False,
     ) -> dict:
         """Get form details."""
         try:
@@ -314,7 +322,9 @@ class FormProcessMapperService:
                     tenant_prefix = f"{tenant_key}-"
                     form_path = form_json.get("path", "")
                     form_name = form_json.get("name", "")
-                    current_app.logger.info(f"Removing tenant key from path: {form_path} & name: {form_name}")
+                    current_app.logger.info(
+                        f"Removing tenant key from path: {form_path} & name: {form_name}"
+                    )
                     if form_path.startswith(tenant_prefix):
                         form_json["path"] = form_path[len(tenant_prefix) :]
 
@@ -323,6 +333,7 @@ class FormProcessMapperService:
             return {
                 "formTitle": title_or_path,
                 "formDescription": description,
+                "anonymous": anonymous,
                 "type": scope_type,
                 "content": form_json,
             }
@@ -489,7 +500,14 @@ class FormProcessMapperService:
 
             # Capture main form & workflow
             forms.append(
-                self._get_form(mapper.form_name, "main", mapper.form_id, mapper.description, tenant_key)
+                self._get_form(
+                    mapper.form_name,
+                    "main",
+                    mapper.form_id,
+                    mapper.description,
+                    tenant_key,
+                    mapper.is_anonymous,
+                )
             )
             workflow = self._get_workflow(
                 mapper.process_key, mapper.process_name, "main", user
@@ -497,18 +515,20 @@ class FormProcessMapperService:
             workflows.append(workflow)
             authorizations.append(self._get_authorizations(mapper.form_id, user))
 
-            forms_names, dmns, sub_workflows = self._parse_xml(
-                workflow["content"], user
-            )
+            # Parse bpm xml to get subforms & workflows
+            # The following lines are currently commented out but may be needed for future use.
+            # forms_names, dmns, sub_workflows = self._parse_xml(
+            #     workflow["content"], user
+            # )
 
-            for form in set(forms_names):
-                forms.append(
-                    self._get_form(form, "sub", form_id=None, description=None, tenant_key=tenant_key)
-                )
-            for dmn in set(dmns):
-                rules.append(self._get_dmn(dmn, "sub", user))
+            # for form in set(forms_names):
+            #     forms.append(
+            #         self._get_form(form, "sub", form_id=None, description=None, tenant_key=tenant_key)
+            #     )
+            # for dmn in set(dmns):
+            #     rules.append(self._get_dmn(dmn, "sub", user))
 
-            workflows.extend(sub_workflows)
+            # workflows.extend(sub_workflows)
 
             return {
                 "forms": forms,
@@ -518,3 +538,142 @@ class FormProcessMapperService:
             }
 
         raise BusinessException(BusinessErrorCode.INVALID_FORM_PROCESS_MAPPER_ID)
+
+    @staticmethod
+    def validate_form_name_path_title(request):
+        """Validate a form name by calling the external validation API."""
+        # Retrieve the parameters from the query string
+        title = request.args.get("title")
+        name = request.args.get("name")
+        path = request.args.get("path")
+        form_id = request.args.get("id")
+
+        # Check if at least one query parameter is provided
+        if not (title or name or path):
+            raise BusinessException(BusinessErrorCode.INVALID_FORM_VALIDATION_INPUT)
+
+        # Combine them into query parameters dictionary
+        query_params = f"title={title}&name={name}&path={path}&select=title,path,name"
+
+        # Initialize the FormioService and get the access token
+        formio_service = FormioService()
+        form_io_token = formio_service.get_formio_access_token()
+        # Call the external validation API
+        validation_response = formio_service.get_form_search(
+            query_params, form_io_token
+        )
+
+        # Check if the validation response has any results
+        if validation_response:
+            # Check if the form ID matches
+            if (
+                form_id
+                and len(validation_response) == 1
+                and validation_response[0].get("_id") == form_id
+            ):
+                return {}
+            # If there are results but no matching ID, the form name is still considered invalid
+            raise BusinessException(BusinessErrorCode.FORM_EXISTS)
+        # If no results, the form name is valid
+        return {}
+
+    def deploy_process(self, process_name, process_data, tenant_key, token):
+        """Deploy process."""
+        file_path = f"{process_name}.bpmn"
+        # If process data empty deploy default workflow data.
+        if process_data:
+            if isinstance(process_data, str):
+                process_data = process_data.encode("utf-8")
+        else:
+            process_data = default_flow_xml_data(process_name).encode("utf-8")
+
+        # Prepare the parameters for the deployment
+        payload = {
+            "deployment-name": process_name,
+            "enable-duplicate-filtering": "true",
+            "deploy-changed-only": "false",
+            "deployment-source": "Camunda Modeler",
+            "tenant-id": tenant_key,
+        }
+        files = {"upload": (file_path, process_data, "text/bpmn")}
+        BPMService.post_deployment(token, payload, tenant_key, files)
+
+    def validate_mapper(self, mapper_id, tenant_key):
+        """Validate mapper by mapper Id."""
+        mapper = FormProcessMapper.find_form_by_id(form_process_mapper_id=mapper_id)
+        if not mapper:
+            raise BusinessException(BusinessErrorCode.INVALID_FORM_PROCESS_MAPPER_ID)
+
+        # Check tenant authentication
+        if tenant_key and mapper.tenant != tenant_key:
+            raise PermissionError(BusinessErrorCode.PERMISSION_DENIED)
+        return mapper
+
+    def capture_form_history(self, mapper, data, user_name):
+        """Capture form history."""
+        major_version, minor_version = 1, 0
+        latest_form_history = FormHistory.get_latest_version(mapper.parent_form_id)
+        if latest_form_history:
+            major_version, minor_version = (
+                latest_form_history.major_version,
+                latest_form_history.minor_version,
+            )
+        FormHistory(
+            created_by=user_name,
+            parent_form_id=mapper.parent_form_id,
+            form_id=mapper.form_id,
+            change_log=data,
+            status=True,
+            major_version=major_version,
+            minor_version=minor_version,
+        ).save()
+
+    @user_context
+    def publish(self, mapper_id, **kwargs):
+        """Publish by mapper_id."""
+        user: UserContext = kwargs["user"]
+        tenant_key = user.tenant_key
+        token = user.bearer_token
+        user_name = user.user_name
+        mapper = self.validate_mapper(mapper_id, tenant_key)
+        process_name = mapper.process_key
+
+        # Fetch process data from process table
+        process = Process.get_latest_version(process_name)
+        process_data = process.process_data if process else None
+        # Deploy process
+        self.deploy_process(process_name, process_data, tenant_key, token)
+        if not process:
+            # create entry in process with default flow.
+            process = Process(
+                name=process_name,
+                process_type="BPMN",
+                process_data=default_flow_xml_data(process_name).encode("utf-8"),
+                form_process_mapper_id=mapper_id,
+                tenant=tenant_key,
+                major_version=1,
+                minor_version=0,
+                created_by=user_name,
+            )
+        # Update process status
+        process.status = "PUBLISHED"
+        process.save()
+
+        # Capture publish(active) status in form history table.
+        self.capture_form_history(mapper, {"status": "active"}, user_name)
+        # Update status in mapper table
+        mapper.update({"status": str(FormProcessMapperStatus.ACTIVE.value), "prompt_new_version": False})
+        return {}
+
+    @user_context
+    def unpublish(self, mapper_id: int, **kwargs):
+        """Publish by mapper_id."""
+        user: UserContext = kwargs["user"]
+        user_name = user.user_name
+        tenant_key = user.tenant_key
+        mapper = self.validate_mapper(mapper_id, tenant_key)
+        # Capture publish status in form history table.
+        self.capture_form_history(mapper, {"status": "inactive"}, user_name)
+        # Update status(inactive) in mapper table
+        mapper.update({"status": str(FormProcessMapperStatus.INACTIVE.value), "prompt_new_version": True})
+        return {}
