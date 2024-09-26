@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import utils from "formiojs/utils";
+import utils from "@aot-technologies/formiojs/lib/utils";
 import { Button, Card } from "react-bootstrap";
 import Select from "react-select";
 import _ from "lodash";
